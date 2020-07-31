@@ -16,8 +16,8 @@
             <!-- right side of navbar -->
             <ul class="navbar-nav navbar-right">
                 <!-- authentication links -->
-                <li class="nav-item"><a class="nav-link" href="#"></a>Sign in</li>
-                <li class="nav-item"><a class="nav-link" href="#"></a>Sign up</li>
+                <li class="nav-item"><a class="nav-link" href="#">Sign in</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Sign up</a></li>
             </ul>
         </div>
     </div>

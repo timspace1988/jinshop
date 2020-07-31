@@ -7,17 +7,17 @@
     <!-- csrf token -->
     <title>@yield('title', 'jiashop') - a creative online shop</title>
     <!-- style -->
-    <link rel="stylesheet" href="{{ mix(css/app.css) }}">
+    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
 </head>
 <body>
     <div id="app" class="{{ route_class()}}-page ">
-        @include('layout.header')
+        @include('layouts._header')
         <div class="container">
-            @yield('contant')
+            @yield('content')
         </div>
-        @include('layout.footer')
+        @include('layouts._footer')
     </div>
     <!-- js script -->
-    <script src="{{ mix('js/app.js) }}"></script>
+    <script src="{{ mix('js/app.js') }}"></script>
 </body>
 </html>
