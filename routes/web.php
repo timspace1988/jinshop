@@ -22,3 +22,8 @@ Route::get('/', 'PagesController@root')->name('root');
 Auth::routes(['verify' => true]);
 
 //Route::get('/home', 'HomeController@index')->name('home');
+
+//Auth requires user to login, verified requires user's email being verified
+Route::group(['middleware' => ['auth', 'verified']], function(){
+    Route::get('user_addresses', 'UserAddressesController@index')->name('user_addresses.index');
+});
