@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Add new address')
+@section('title', ($address->id ? 'Edit the' : 'Add new' ) . ' address')
 
 @section('content')
     <div class="row">
@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="text-center">
-                        Add new address
+                        {{ $address->id ? 'Edit the' : 'Add new' }} address
                     </h2>
                 </div>
                 <div class="card-body">
@@ -24,7 +24,13 @@
                         
                     @endif
                     
+                    <!-- Check if to add new address or update an address -->
+                    @if ($address->id)
+                    <form class="form-horizontal" role="form" action="{{ route('user_addresses.update', ['user_address' => $address->id]) }}" method="post">
+                        {{ method_field('PUT') }}
+                    @else
                     <form class="form-horizontal" role="form" action="{{ route('user_addresses.store') }}" method="post">
+                    @endif
                         <!-- csrf token -->
                         {{ csrf_field() }}
                         <div class="form-group row">
@@ -65,7 +71,7 @@
                         </div>
                         <div class="from-group row text-center">
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary">{{ $address->id ? 'Save' : 'Submit' }}</button>
                             </div>
                         </div>
                     </form>
