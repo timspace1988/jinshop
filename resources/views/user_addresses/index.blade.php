@@ -13,7 +13,7 @@
                                 <th>Contact name</th>
                                 <th>Address</th>
                                 <th>Postcode</th>
-                                <th>Contact number</th>
+                                <th>Contact phone</th>
                                 <th>Options</th>
                             </tr>
                         </thead>
