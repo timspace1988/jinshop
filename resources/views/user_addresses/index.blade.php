@@ -5,7 +5,10 @@
     <div class="row">
         <div class="col-md-10 offset-md-1">
             <div class="card panel-default">
-                <div class="card-header">Address list</div>
+                <div class="card-header">
+                    Address list
+                    <a href="{{ route('user_addresses.create') }}" class="float-right">Add new address</a>
+                </div>
                 <div class="card-body">
                     <table class="table table-bordered table-striped">
                         <thead>
