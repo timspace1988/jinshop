@@ -2,6 +2,8 @@
 
 use Illuminate\Routing\Router;
 
+//We put all routes for administration panel in this file 
+
 Admin::routes();
 
 Route::group([
@@ -11,5 +13,6 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index')->name('admin.home');
+    $router->get('users', 'UsersController@index');
 
 });
