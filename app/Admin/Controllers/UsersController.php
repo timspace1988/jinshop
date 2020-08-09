@@ -8,6 +8,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 
+
 class UsersController extends AdminController
 {
     /**
@@ -25,7 +26,14 @@ class UsersController extends AdminController
     protected function grid()
     {
         //dd("Hello");
-        $grid = new Grid(new User);
+        try{
+            $grid = new Grid(new User);
+        }catch(\Exception $e){
+            $e->getMessage();
+            $e->getFile();
+            $e->getLine();
+        }
+        
         dd("Hello");
         $grid->column('id', __('ID'));//'id' is User's id attribute, 'ID' is the column name
         //$grid->id('ID');//same with above
