@@ -26,7 +26,7 @@ class UsersController extends AdminController
     {
         //dd("Hello");
         $grid = new Grid(new User());
-
+        dd("Hello");
         $grid->column('id', __('ID'));//'id' is User's id attribute, 'ID' is the column name
         //$grid->id('ID');//same with above
         $grid->column('name', __('Name'));
@@ -38,7 +38,7 @@ class UsersController extends AdminController
         //$grid->column('remember_token', __('Remember token'));
         $grid->column('created_at', __('Registered at'));
         //$grid->column('updated_at', __('Updated at'));
-        dd("Hello");
+        //dd("Hello");
         //Do not show create button on display page because we do not create users in admin panel
         $grid->disableCreateButton();
 
