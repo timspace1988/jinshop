@@ -25,7 +25,7 @@ class UsersController extends AdminController
     protected function grid()
     {
         //dd("Hello");
-        $grid = new Grid(new User());
+        $grid = new Grid(new User);
         dd("Hello");
         $grid->column('id', __('ID'));//'id' is User's id attribute, 'ID' is the column name
         //$grid->id('ID');//same with above
