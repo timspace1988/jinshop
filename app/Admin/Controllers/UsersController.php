@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\models\User;
+use App\Models\UserAddress;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -27,7 +28,7 @@ class UsersController extends AdminController
     {
         //dd("Hello");
         try{
-            $grid = new Grid(new User);
+            $grid = new Grid(new UserAddress());
         }catch(\Exception $e){
             $e->getMessage();
             $e->getFile();
