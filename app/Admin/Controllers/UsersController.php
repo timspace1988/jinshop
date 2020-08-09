@@ -16,7 +16,7 @@ class UsersController extends AdminController
      * @var string
      */
     protected $title = 'Users';
-
+    
     /**
      * Make a grid builder.(These are columns being displayed)
      *
@@ -24,6 +24,7 @@ class UsersController extends AdminController
      */
     protected function grid()
     {
+        dd("Hello");
         $grid = new Grid(new User());
 
         $grid->column('id', __('ID'));//'id' is User's id attribute, 'ID' is the column name
