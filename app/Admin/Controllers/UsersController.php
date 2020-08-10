@@ -2,8 +2,11 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Jia;
 use App\models\User;
 use App\Models\UserAddress;
+use App\Models\UserTest;
+use App\Models\UserUser;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -28,11 +31,12 @@ class UsersController extends AdminController
     {
         //dd("Hello");
         try{
-            $grid = new Grid(new User());
+            $grid = new Grid(new User);
         }catch(\Exception $e){
-            $e->getMessage();
-            $e->getFile();
-            $e->getLine();
+            // $e->getMessage();
+            // $e->getFile();
+            // $e->getLine();
+            dd($e);
         }
         
         dd("Hello");
