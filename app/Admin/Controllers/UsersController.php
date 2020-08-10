@@ -31,7 +31,15 @@ class UsersController extends AdminController
     {
         //dd("Hello");
         
-        $myUser = new User;
+        try{
+            $myUser = new User;
+        }catch(\Exception $e){
+            // $e->getMessage();
+            // $e->getFile();
+            // $e->getLine();
+            dd($e);
+        }
+        
         dd("Hello world");
         try{
             $grid = new Grid($myUser);
