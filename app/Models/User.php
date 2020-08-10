@@ -16,7 +16,7 @@ class User extends Model//Authenticatable //implements MustVerifyEmail
     //use this trait so that we can display date and time in default date time format
     //use DefaultDatetimeFormat;
 
-    use Notifiable;
+    //use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -32,9 +32,9 @@ class User extends Model//Authenticatable //implements MustVerifyEmail
      *
      * @var array
      */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    // protected $hidden = [
+    //     'password', 'remember_token',
+    // ];
 
     /**
      * The attributes that should be cast to native types.
