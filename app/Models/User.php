@@ -13,9 +13,9 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable implements MustVerifyEmail
 {
     //use this trait so that we can display date and time in default date time format
-    //use DefaultDatetimeFormat;
+    use DefaultDatetimeFormat;
 
-    //use Notifiable;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
