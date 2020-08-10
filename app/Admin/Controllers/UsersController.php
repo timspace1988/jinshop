@@ -11,7 +11,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
-
+use Throwable;
 
 class UsersController extends AdminController
 {
@@ -33,6 +33,10 @@ class UsersController extends AdminController
         
         try{
             $myUser = new User;
+        }catch(Throwable $t){
+            $m = $t->getMessage();
+            echo $m;
+            dd($t);
         }catch(\Exception $e){
             // $e->getMessage();
             // $e->getFile();
