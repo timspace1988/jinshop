@@ -30,8 +30,11 @@ class UsersController extends AdminController
     protected function grid()
     {
         //dd("Hello");
+        
+        $myUser = new User;
+        dd("Hello world");
         try{
-            $grid = new Grid(new UserAddress);
+            $grid = new Grid($myUser);
         }catch(\Exception $e){
             // $e->getMessage();
             // $e->getFile();
@@ -39,7 +42,7 @@ class UsersController extends AdminController
             dd($e);
         }
         
-        dd("Hello");
+        //dd("Hello");
         $grid->column('id', __('ID'));//'id' is User's id attribute, 'ID' is the column name
         //$grid->id('ID');//same with above
         $grid->column('name', __('Name'));

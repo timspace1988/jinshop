@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @method addresses()
  */
-class UserAddress extends Model//Authenticatable //implements MustVerifyEmail
+class User extends Model//Authenticatable //implements MustVerifyEmail
 {
     //use this trait so that we can display date and time in default date time format
     //use DefaultDatetimeFormat;
