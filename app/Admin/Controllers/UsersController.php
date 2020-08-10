@@ -28,7 +28,7 @@ class UsersController extends AdminController
     {
         //dd("Hello");
         try{
-            $grid = new Grid(new UserAddress());
+            $grid = new Grid(new User());
         }catch(\Exception $e){
             $e->getMessage();
             $e->getFile();
