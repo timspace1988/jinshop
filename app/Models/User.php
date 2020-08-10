@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /**
  * @method addresses()
  */
-class User extends Authenticatable //implements MustVerifyEmail
+class User extends Model//Authenticatable //implements MustVerifyEmail
 {
     //use this trait so that we can display date and time in default date time format
     //use DefaultDatetimeFormat;
