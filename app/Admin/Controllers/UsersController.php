@@ -9,7 +9,7 @@ use App\Models\UserTest;
 use App\Models\UserUser;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
-//use Encore\Admin\Grid;
+use Encore\Admin\Grid;
 use Encore\Admin\Show;
 
 
@@ -31,7 +31,7 @@ class UsersController extends AdminController
     {
         //dd("Hello");
         try{
-            $grid = new \Encore\Admin\Grid(new User);
+            $grid = new Grid(new UserAddress);
         }catch(\Exception $e){
             // $e->getMessage();
             // $e->getFile();
