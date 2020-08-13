@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+//use Str;
 
 class Product extends Model
 {
@@ -18,4 +20,14 @@ class Product extends Model
     public function skus(){
         return $this->hasMany(ProductSku::class);
     }
+
+    //convert image attributes to its absolute path
+    //this function will allows to call an attribute 'image_url' e.g. $this->image_url
+    public function getImageUrlAttribute(){
+        //if the image attribute is already an absolute one (full path), return it directly
+        if(Str::startsWith($this->attributes['image'], ['http://', 'https://'])){
+            return   $this->attributes['image'];
+        }
+        return \Storage::disk('public')->url($this->attributes['image']);
+    } 
 }
