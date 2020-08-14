@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Exception;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
+    //products list
     public function index(Request $request){
         //create a $builder for all query on products for sale
         $builder = Product::query()->where('on_sale', true);
@@ -47,5 +49,15 @@ class ProductsController extends Controller
                 'order' => $order
                 ]
             ]);
+    }
+
+    //show product details
+    public function show (Product $product, Request $request){
+        //check if the selected product is for sale, if not, throw an exception
+        if(!$product->on_sale){
+            throw new Exception('This product is not for sale.');
+        }
+
+        return view('products.show', ['product' => $product]);
     }
 }

@@ -20,8 +20,9 @@ use Illuminate\Support\Facades\Route;
 //Route::get('/', 'PagesController@root')->name('root');
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
+Route::get('products/{product}', 'ProductsController@show')->name('products.show');
 
-Auth::routes(['verify' => true]);
+Auth::routes(['verify' => true]);//Auth::routes() isadded by laravel, it will create routes for users'verification, 'verify' => true enables email verification 
 
 //Route::get('/home', 'HomeController@index')->name('home');
 
