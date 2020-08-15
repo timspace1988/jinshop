@@ -20,7 +20,15 @@ use Illuminate\Support\Facades\Route;
 //Route::get('/', 'PagesController@root')->name('root');
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
-Route::get('products/{product}', 'ProductsController@show')->name('products.show');
+//Route::get('products/{product}', 'ProductsController@show')->name('products.show');
+/*
+we move above route to the bottom, because products.favorites route has conflict with this
+When laravel check the favorites(saved products) url against the routes, it will firstly match it with products.show, and regard the word 'favorites' as an product id
+Another way to solve this problem is to add an condition to it using reguar expression
+e.g  Route::get('products/{product}', 'ProductsController@show')->name('products.show')->where(['product' => '[0-9]+']);
+*/
+Route::get('products/{product}', 'ProductsController@show')->name('products.show')->where(['product' => '[0-9]+']);
+
 
 Auth::routes(['verify' => true]);//Auth::routes() isadded by laravel, it will create routes for users'verification, 'verify' => true enables email verification 
 
@@ -36,4 +44,7 @@ Route::group(['middleware' => ['auth', 'verified']], function(){
     Route::delete('user_addresses/{user_address}', 'UserAddressesController@destroy')->name('user_addresses.destroy');
     Route::post('products/{product}/favorite', 'ProductsController@favor')->name('products.favor');
     Route::delete('products/{product}/favorite', 'ProductsController@disfavor')->name('products.disfavor');
+    Route::get('products/favorites', 'ProductsController@favorites')->name('products.favorites');
 });
+
+//Route::get('products/{product}', 'ProductsController@show')->name('products.show');
