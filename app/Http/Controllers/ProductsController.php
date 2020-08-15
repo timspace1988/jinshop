@@ -59,6 +59,35 @@ class ProductsController extends Controller
             throw new InvalidRequestException('This product is not for sale.');
         }
 
-        return view('products.show', ['product' => $product]);
+        //$favored will help us check if we are going to show 'save' or 'remove' button
+        $favored = false;
+        if($user = $request->user()){//check if user has signed in
+            //if user has signed in, search for current product's id in user's saved list
+            //boolVal() will convert value to boolean type
+            $favored = boolval($user->favoriteProducts()->find($product->id)); 
+        }
+
+
+        return view('products.show', ['product' => $product, 'favored' => $favored]);
+    }
+
+    //save product interface (will be sent request by ajax)
+    public function favor(Product $product, Request $request){
+        $user = $request->user();
+        //check if user has already saved this product, if yes, then we do nothing
+        if($user->favoriteProducts()->find($product->id)){
+            return [];
+        }
+
+        //use attach() to build relationship between user and product, and save to the relationship table user_favorite_products
+        $user->favoriteProducts()->attach($product);//attach() accept an id or the product itself as param
+        return [];
+    }
+
+    //remove product from saved list
+    public function disfavor(Product $product, Request $request){
+        $user=$request->user();
+        $user->favoriteProducts()->detach($product);
+        return [];
     }
 }

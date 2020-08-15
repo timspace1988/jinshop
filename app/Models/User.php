@@ -48,5 +48,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public function addresses(){
         return $this->hasMany(UserAddress::class);
     }
+
+    //user's saved products
+    public function favoriteProducts(){
+        //belongsToMany will define a many to many relationship,
+        return $this->belongsToMany(Product::class, 'user_favorite_products')//param 1: related model, param 2: jointed table for this relationship
+                    ->withTimestamps()
+                    ->orderBy('user_favorite_products.created_at', 'desc');
+    }
     
 }
