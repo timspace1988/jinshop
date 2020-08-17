@@ -108,6 +108,45 @@
                      }
                  );
         });
+
+        //listening on 'Add to cart' button
+        $('.btn-add-to-cart').click(function(){
+            //send request to 'add to cart' interface(CartController's add method)
+            //the second param is a json type, which contains request's attributes(input)
+            axios.post('{{ route('cart.add') }}', 
+                {
+                    sku_id : $('label.active input[name=skus]').val(),
+                    amount: $('.cart_amount input').val(),
+                })
+                .then(
+                    //if request succeed, execute this callback
+                    function(d){
+                        //alert(d.data.msg);
+                        swal('Added to you cart.', '', 'success');
+                    },
+                    //if failed, execute this callback
+                    function(error){
+                        if(error.response.status === 401){
+                            swal('Please sign in to add your item.');
+                        }else if(error.response.status === 403){
+                            swal('Request refused.', 'Thist might be casued by an unverified account.', 'error');
+                        }else if(error.response.status === 422){
+                            //422 http status means user's input does not pass the validation
+                            var html = '<div>';
+                            _.each(error.response.data.errors, function(errors){
+                                _.each(errors, function(error){
+                                    html += error + '<br>'
+                                });
+                            });
+                            html += '</div>';
+                            swal({content : $(html)[0], icon : 'error'});
+                        }else{
+                            //all other errors should be casued by a collapsed system
+                            swal('Syetem error', '', 'error');
+                        }
+                    }
+                );
+        });
     });
 </script>
 @endsection
