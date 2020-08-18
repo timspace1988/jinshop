@@ -20,6 +20,9 @@
                 <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Sign in</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Sign up</a></li>
                 @else
+                <li class="nav-item">
+                    <a href="{{ route('cart.index') }}" class="nav-link mt-1"><i class="fa fa-shopping-cart"></i></a>
+                </li>
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <img src="https://cdn.learnku.com/uploads/images/201709/20/1/PtDKbASVcz.png?imageView2/1/w/60/h/6" class="img-responsive img-circle" width="30px" height="30px">

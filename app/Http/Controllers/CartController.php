@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddCartRequest;
 use App\Models\CartItem;
+use App\Models\ProductSku;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -34,6 +35,25 @@ class CartController extends Controller
             // }
         }
 
+        return [];
+    }
+
+    //Show cart
+    public function index(Request $request){
+        //with(['[productSku.product']), pre-load productSku and product info, which improve sql search efficiency compared to use $item->productSku->product (N+1)
+        $cartItems = $request->user()->cartItems()->with(['productSku.product'])->get();
+
+        return view('cart.index',['cartItems' => $cartItems]);
+    }
+
+    //remove items from cart
+    public function remove(ProductSku $sku, Request $request){
+        //$request->user()->cartItem()->where('product_sku_id', $sku->id)->delete();
+        try{
+            $request->user()->cartItems()->where('product_sku_id', $sku->id)->delete();
+        }catch(\Throwable $t){
+            return ['m' => $t->getMessage()];
+        }
         return [];
     }
 }
