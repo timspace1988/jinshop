@@ -94,9 +94,10 @@ class Order extends Model
             }
         }
         /*
-        if the generated no is same with some existing order no, it means they have a conflict, we cannot use this generated no, so we keep generating for 10 times until we got the un-conflict one,
+        if the generated no is same with some existing order no, it means they have a conflict, two order with same no is not allowed, 
+        we cannot use this generated no, so we keep generating for 10 times until we got the un-conflict one,
         however, if we still cannot get a unique no, we give out a warning about failed generating order no
-        note: the above code will ensure the randomly generated order no is unique, because the order no important (usually we can get one within 10 times)
+        note: the above code will ensure the randomly generated order no is unique, because the order no is important (usually we can get one within 10 times)
         */
         \Log::warning('Failed to generate a unique order no');
         return false;
