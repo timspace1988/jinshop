@@ -42,8 +42,9 @@ class CartController extends Controller
     public function index(Request $request){
         //with(['[productSku.product']), pre-load productSku and product info, which improve sql search efficiency compared to use $item->productSku->product (N+1)
         $cartItems = $request->user()->cartItems()->with(['productSku.product'])->get();
+        $addresses = $request->user()->addresses()->orderBy('last_used_at', 'desc')->get();
 
-        return view('cart.index',['cartItems' => $cartItems]);
+        return view('cart.index',['cartItems' => $cartItems, 'addresses' => $addresses]);
     }
 
     //remove items from cart

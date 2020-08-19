@@ -38,7 +38,7 @@ class AddCartRequest extends FormRequest
                         return $fail('This product is sold out.');
                     }
                     if($this->input('amount') > 0 && $sku->stock < $this->input('amount')){
-                        return $fail('This product is not enough on stock');
+                        return $fail('This product does not have enough stock.');
                     }
                 }
             ],
