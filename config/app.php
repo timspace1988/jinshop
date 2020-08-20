@@ -1,6 +1,10 @@
 <?php
 
 return [
+    /*
+    waiting time for CloseOrder job, the time unit is second
+    */
+    'order_ttl' => 1800,
 
     /*
     |--------------------------------------------------------------------------

@@ -30,6 +30,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a href="{{ route('products.favorites') }}" class="dropdown-item">My saved items</a>
+                        <a href="{{ route('orders.index') }}" class="dropdown-item">My orderss</a>
                         <a href="{{ route('user_addresses.index') }}" class="dropdown-item">Manage addresses</a>
                         <a href="#" class="dropdown-item" id="logout" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Sign out</a>
                         <form action="{{ route('logout') }}" id="logout-form" method="POST" style="display: none;">

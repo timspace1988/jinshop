@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\OrderRequest;
+use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\ProductSku;
 use App\Models\UserAddress;
 use Carbon\Carbon;
-
+use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
@@ -79,6 +80,18 @@ class OrdersController extends Controller
             return ['msg' => $t->getMessage()];
         }
 
+        //after an order is created(placed), we need to trigger a CloseOrder job (close order after some time if not paid) and dispatch it into queue
+        $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
         return $order;
+    }
+
+    //show order list for customer
+    public function index(Request $request){
+        $orders = Order::query()->with(['items.product', 'items.productSku'])//avoid N+1 problem
+                               ->where('user_id', $request->user()->id)
+                               ->orderBy('created_at', 'desc')
+                               ->paginate();
+        
+        return view('orders.index', ['orders' => $orders]);
     }
 }
