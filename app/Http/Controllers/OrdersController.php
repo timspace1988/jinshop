@@ -94,4 +94,11 @@ class OrdersController extends Controller
         
         return view('orders.index', ['orders' => $orders]);
     }
+
+    //order details page
+    public function show(Order $order, Request $request){
+        //Only order's owner can see his order's details
+        $this->authorize('own', $order);
+        return view('orders.show', ['order' => $order->load(['items.product', 'items.productSku'])]);
+    }
 }

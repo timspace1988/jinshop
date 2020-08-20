@@ -63,7 +63,7 @@ class OrderRequest extends FormRequest
     public function messages(){
         return [
             'items.required' => 'Please select at least one item to place your order',
-            'address_id.required' => 'You have not set any address yet, please add one before continue.',
+            'address_id.required' => 'Please add an address before you can continue.',
         ];
     }
 }

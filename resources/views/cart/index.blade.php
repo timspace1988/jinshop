@@ -154,7 +154,8 @@
                         //alert(response.data.msg);
                         swal('Your order has been placed.', '', 'success')
                         .then(function(){
-                            location.reload();
+                            //location.reload();
+                            location.href = '/orders/' + response.data.id;
                         });
                         
                     },

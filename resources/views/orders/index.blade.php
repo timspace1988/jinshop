@@ -61,7 +61,7 @@
                                                             Otherwise, your order will be closed.
                                                         @endif
                                                     </td>
-                                                    <td rowspan="{{ count($order->items) }}" class="text-center"><a href="" class="btn btn-primary btn-sm">Details</a></td>
+                                                    <td rowspan="{{ count($order->items) }}" class="text-center"><a href="{{ route('orders.show', ['order' => $order->id]) }}" class="btn btn-primary btn-sm">Details</a></td>
                                                 @endif
                                             </tr>
                                         @endforeach
