@@ -29,7 +29,7 @@ class OrdersController extends Controller
         //     return ['msg' => $t->getMessage()];
         // }
 
-        return $orderService->store($user, $address, $request->input('remark'), $request->input('items'
+        return $orderService->store($user, $address, $request->input('remark'), $request->input('items'));
 
         /*
 
