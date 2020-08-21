@@ -23,13 +23,13 @@ class OrdersController extends Controller
 
         $address = UserAddress::find($request->input('address_id'));
 
-        try{
-            return $orderService->store($user, $address, $request->input('remark'), $request->input('items'));
-        }catch(\Throwable $t){
-            return ['msg' => $t->getMessage()];
-        }
+        // try{
+        //     return $orderService->store($user, $address, $request->input('remark'), $request->input('items'));
+        // }catch(\Throwable $t){
+        //     return ['msg' => $t->getMessage()];
+        // }
 
-        
+        return $orderService->store($user, $address, $request->input('remark'), $request->input('items'
 
         /*
 
