@@ -151,7 +151,7 @@
             axios.post('{{ route('orders.store') }}', req)
                  .then(
                      function(response){
-                        //alert(response.data.msg);
+                        alert(response.data.msg);
                         swal('Your order has been placed.', '', 'success')
                         .then(function(){
                             //location.reload();
