@@ -9,21 +9,32 @@ use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\ProductSku;
 use App\Models\UserAddress;
+use App\Services\CartService;
+use App\Services\OrderService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
     //Create order
-    public function store(OrderRequest $request){
+    //Note: $request can only appear in controler and middleware, do not put in a package class
+    public function store(OrderRequest $request, OrderService $orderService){
         $user = $request->user();
+
+        $address = UserAddress::find($request->input('address_id'));
+
+        return $orderService->store($user, $address, $request->input('remark'), $request->input('items'));
+
         /*
-        open a database affair using \DB::tansaction(), all sql operations in the callback function will be included in this affair
-        if any exception is throwed by this callback, the whole of this affair will be rolled back, otherwise it will submit this affair to database
-         */
+
+        //
+        //open a database affair using \DB::tansaction(), all sql operations in the callback function will be included in this affair
+        //if any exception is throwed by this callback, the whole of this affair will be rolled back, otherwise it will submit this affair to database
+        //
+
         try{
 
-        $order = \DB::transaction(function() use($user, $request){
+        $order = \DB::transaction(function() use($user, $request, $cartService){
             //Get the address select by user, and update its last used time
             $address = UserAddress::find($request->input('address_id'));
             $address->update(['last_used_at' => Carbon::now()]);
@@ -70,8 +81,9 @@ class OrdersController extends Controller
             $order->update(['total_amount' => $totalAmount]);
 
             //Remove the order items from your cart
-            $skuIds = collect($items)->pluck('sku_id');
-            $user->cartItems()->whereIn('product_sku_id', $skuIds)->delete();
+            $skuIds = collect($items)->pluck('sku_id')->all();
+            //$user->cartItems()->whereIn('product_sku_id', $skuIds)->delete();
+            $cartService->remove($skuIds);
             
             return $order;
         });
@@ -83,6 +95,8 @@ class OrdersController extends Controller
         //after an order is created(placed), we need to trigger a CloseOrder job (close order after some time if not paid) and dispatch it into queue
         $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
         return $order;
+
+        */
     }
 
     //show order list for customer

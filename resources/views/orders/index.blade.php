@@ -12,7 +12,7 @@
                         <li class="list-group-item">
                             <div class="card">
                                 <div class="card-header">
-                                    Order number: {{ $order->no }} <span class="float-right">{{ $order->created_at->format('d-m-Y H:i:s') }}</span>
+                                    Order number: {{ $order->no }} <span class="float-right">{{ $order->created_at->format('H:i:s d-m-Y') }}</span>
                                 </div>
                                 <div class="card-body">
                                     <table class="table">
