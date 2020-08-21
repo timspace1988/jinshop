@@ -30,3 +30,25 @@ function get_db_config(){
         ];
     }
 }
+
+//Get redis instance config info
+function get_redis_config(){
+    if(getenv('IS_IN_HEROKU')){
+        $url = parse_url(getenv('REDIS_URL'));
+
+
+        return [
+            'url' => getenv('REDIS_URL'),
+            'host' => $url['host'],
+            'password' => $url['pass'],
+            'port' => $url['port'],
+        ];
+    }else{
+        return [
+            'url' => env('REDIS_URL'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', 6379),
+        ];
+    }
+}
