@@ -4,7 +4,8 @@ return [
     /*
     waiting time for CloseOrder job, the time unit is second
     */
-    //'order_ttl' => 1800,//half an 
+    //'order_ttl' => 1800,//half an hour
+    //'order_ttl' => 900,
     'order_ttl' => 30,//
 
     /*
