@@ -15992,3 +15992,8 @@ footer .container p a {
   padding-right: 20px;
 }
 
+.orders-show-page .payment_buttons {
+  margin-top: 10px;
+  padding-right: 10px;
+}
+

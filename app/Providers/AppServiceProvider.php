@@ -18,7 +18,13 @@ class AppServiceProvider extends ServiceProvider
     {
         //inject an singleton object named 'alipay' into container
         $this->app->singleton('alipay', function(){
+            //get configs from 'config/pay'
             $config = config('pay.alipay');
+            //alipay's payment callback request address to our backend  
+            //$config['notify_url'] = route('payment.alipay.notify');
+            $config['notify_url'] = 'http://requestbin.net/r/yoe8dpyo';
+            //alipay's payment callback request address to our browser
+            $config['return_url'] = route('payment.alipay.return');
             //check the environment to decide if enable alipay's developing mode and set different level of logs
             if(app()->environment() !== 'production'){
                 $config['mode'] = 'dev';
