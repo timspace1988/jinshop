@@ -17,17 +17,17 @@ class Order extends Model
     const SHIP_STATUS_RECEIVED = 'received';
 
     public static $refundStatusMap = [
-        self::REFUND_STATUS_PENDING => 'pending',
-        self::REFUND_STATUS_APPLIED => 'applied',
-        self::REFUND_STATUS_PROCESSING => 'processing',
-        self::REFUND_STATUS_SUCCESS => 'success',
-        self::REFUND_STATUS_FAILED => 'failed',
+        self::REFUND_STATUS_PENDING => 'Pending',
+        self::REFUND_STATUS_APPLIED => 'Applied',
+        self::REFUND_STATUS_PROCESSING => 'Processing',
+        self::REFUND_STATUS_SUCCESS => 'Success',
+        self::REFUND_STATUS_FAILED => 'Failed',
     ];
 
     public static $shipStatusMap = [
-        self::SHIP_STATUS_PENDING => 'pending',
-        self::SHIP_STATUS_DELIVERED => 'delivered',
-        self::SHIP_STATUS_RECEIVED => 'received',
+        self::SHIP_STATUS_PENDING => 'Pending',
+        self::SHIP_STATUS_DELIVERED => 'Delivered',
+        self::SHIP_STATUS_RECEIVED => 'Received',
     ];
 
     protected $fillable = [
