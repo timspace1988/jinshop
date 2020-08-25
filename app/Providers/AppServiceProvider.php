@@ -36,6 +36,14 @@ class AppServiceProvider extends ServiceProvider
                 $config['mode'] = 'dev';
                 $config['log']['level'] = Logger::DEBUG;
             }else{
+                /*
+                Note: we should't set $config['mode'] = 'dev' here for production environment
+                      but we need to use alipay sandbox to do test on heroku, we wil(want to) be directed to 'https://openapi.alipaydev.com' to make payment,
+                      if we comment this line(withoud $config['mode'] = 'dev';)we will be directed to https://openapi.alipay.com, then get a 'valid-app-id' error
+                      After you have applied for and set up a real alipay service, 
+                      you need to comment this line, so that your online-app can direct real customer to  real payment page
+                 */
+                $config['mode'] = 'dev';
                 $config['log']['level'] = Logger::WARNING;
             }
 
