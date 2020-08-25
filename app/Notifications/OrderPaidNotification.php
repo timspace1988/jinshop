@@ -32,6 +32,7 @@ class OrderPaidNotification extends Notification
      */
     public function via($notifiable)
     {
+        //we only need send notification via mail. so here is only the 'mail'
         return ['mail'];
     }
 

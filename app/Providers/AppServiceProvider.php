@@ -22,7 +22,13 @@ class AppServiceProvider extends ServiceProvider
             $config = config('pay.alipay');
             //alipay's payment callback request address to our backend  
             //$config['notify_url'] = route('payment.alipay.notify');
-            $config['notify_url'] = 'http://requestbin.net/r/yoe8dpyo';
+            //$config['notify_url'] = 'http://requestbin.net/r/yoe8dpyo';
+            if(app()->environment() == 'production'){
+                $config['notify_url'] = route('payment.alipay.notify');
+            }else{
+                $config['notify_url'] = 'http://requestbin.net/r/1fvwjkp1';
+                //request bin only available for 48 hours, after it, you need to recreate the link on request bin and update it here
+            }
             //alipay's payment callback request address to our browser
             $config['return_url'] = route('payment.alipay.return');
             //check the environment to decide if enable alipay's developing mode and set different level of logs
