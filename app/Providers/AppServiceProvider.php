@@ -36,11 +36,12 @@ class AppServiceProvider extends ServiceProvider
                 $config['mode'] = 'dev';
                 $config['log']['level'] = Logger::DEBUG;
             }else{
-                $config['log'] = Logger::WARNING;
+                $config['log']['level'] = Logger::WARNING;
             }
 
+            //dd($config);
+
             //call Yansongda\Pay to create a alipay object, then we can use app('alipay') to create an aplipay instance
-            dd($config);
             return Pay::alipay($config);
         });
 
