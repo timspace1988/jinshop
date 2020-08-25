@@ -20,7 +20,7 @@ class PaymentController extends Controller
             throw new InvalidRequestException('You cannot  make payment, please check order status.');
         }
 
-        try{
+        // try{
 
         //call aplipay's web page payment
         return app('alipay')->web([
@@ -30,10 +30,10 @@ class PaymentController extends Controller
             //'timeout_express' => '30m'//alipay payment expires in 30 minutes
         ]);
 
-        }catch(\Throwable $t){
-            echo $t->getMessage();
-            dd($t);
-        }
+        // }catch(\Throwable $t){
+        //     echo $t->getMessage();
+        //     dd($t);
+        // }
     }
     //callback for front-end after payment
     public function alipayReturn(){
@@ -42,7 +42,7 @@ class PaymentController extends Controller
             $data = app('alipay')->verify();
             //dd($data);
         } catch (\Exception $e) {
-            return view('pages.error', ['msg' => 'Data returned by alipay does not pass verification']);
+            return view('pages.error', ['msg' => 'Data returned by alipay does not pass verification，but payment might be successful.']);
         }
         
         return view('pages.success', ['msg' => 'You have made a payment successfully']);
