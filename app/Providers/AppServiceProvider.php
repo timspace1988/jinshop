@@ -40,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             //call Yansongda\Pay to create a alipay object, then we can use app('alipay') to create an aplipay instance
+            dd($config);
             return Pay::alipay($config);
         });
 
