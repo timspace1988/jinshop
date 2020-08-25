@@ -20,6 +20,8 @@ class PaymentController extends Controller
             throw new InvalidRequestException('You cannot  make payment, please check order status.');
         }
 
+        try{
+
         //call aplipay's web page payment
         return app('alipay')->web([
             'out_trade_no' => $order->no,//order no is important, we must  ensure it is unique(check order model how we generate order no)
@@ -28,7 +30,10 @@ class PaymentController extends Controller
             //'timeout_express' => '30m'//alipay payment expires in 30 minutes
         ]);
 
-        
+        }catch(\Throwable $t){
+            echo $t->getMessage();
+            dd($t);
+        }
     }
     //callback for front-end after payment
     public function alipayReturn(){

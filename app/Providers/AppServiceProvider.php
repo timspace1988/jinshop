@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
             //alipay's payment callback request address to our backend  
             //$config['notify_url'] = route('payment.alipay.notify');
             //$config['notify_url'] = 'http://requestbin.net/r/yoe8dpyo';
-            if(app()->environment() == 'production'){
+            if(app()->environment() === 'production'){
                 $config['notify_url'] = route('payment.alipay.notify');
             }else{
                 $config['notify_url'] = 'http://requestbin.net/r/1fvwjkp1';
