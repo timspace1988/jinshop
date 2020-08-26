@@ -12,7 +12,7 @@
                         <li class="list-group-item">
                             <div class="card">
                                 <div class="card-header">
-                                    Order number: {{ $order->no }} <span class="float-right">{{ $order->created_at->format('H:i:s d-m-Y') }}</span>
+                                    Order number: {{ $order->no }} <span class="float-right">{{ $order->created_at->format('d/m/Y - H:i:s') }}</span>
                                 </div>
                                 <div class="card-body">
                                     <table class="table">
@@ -57,7 +57,7 @@
                                                             Closed
                                                         @else
                                                             Not paid <br>
-                                                            Please make payment before {{ $order->created_at->addSeconds(config('app.order_ttl'))->format('d-m-Y H:i:s') }}<br>
+                                                            Please make payment before {{ $order->created_at->addSeconds(config('app.order_ttl'))->format(' d/m/Y - H:i:s') }}<br>
                                                             Otherwise, your order will be closed.
                                                         @endif
                                                     </td>

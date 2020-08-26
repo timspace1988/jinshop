@@ -6,6 +6,7 @@ use App\Models\Order;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
+use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 
 class OrdersController extends AdminController
@@ -76,6 +77,14 @@ class OrdersController extends AdminController
 
         return $grid;
     }
+
+    //We create our own show details method and pages
+    public function show($id, Content $content){
+        //we will keep using laravel-admin's left and top menus, but that page's content will be ours
+        return $content->header('Order details')
+                       ->body(view('admin.orders.show', ['order' => Order::find($id)]));
+    }
+
 
     // /**
     //  * Make a show builder.
