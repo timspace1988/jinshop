@@ -2,15 +2,19 @@
 
 namespace App\Admin\Controllers;
 
+use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\Request;
 use App\Models\Order;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class OrdersController extends AdminController
 {
+    use ValidatesRequests;//this trait is no included in AdminController from Laravel-Admin, so we need to add this trait here so that we can use $this->validate([],[],[])
     /**
      * Title for current resource.
      *
@@ -83,6 +87,38 @@ class OrdersController extends AdminController
         //we will keep using laravel-admin's left and top menus, but that page's content will be ours
         return $content->header('Order details')
                        ->body(view('admin.orders.show', ['order' => Order::find($id)]));
+    }
+
+    //Send the items to customer
+    public function ship(Order $order, Request $request){
+        //Check if this order has been paid
+        if(!$order->paid_at){
+            throw new InvalidRequestException('This order has not been paid yet.');
+        }
+        //check if this order has been shipped(we only have 3 shipping status: pending, delivered, received)
+        if($order->ship_status !== Order::SHIP_STATUS_PENDING){
+            throw new InvalidRequestException('The items of order have been shipped.');
+        }
+        //after laravel 5.5 validate method can return the data just being validate
+        $data = $this->validate($request,
+                    [
+                        'express_company' => ['required'],
+                        'express_no' => ['required'],
+                    ], 
+                    [],
+                    [
+                        'express_company' => 'Courier company',
+                        'express_no' => 'ship no',
+                    ]);
+        //Update the ship status to in delivery(SHIP_STATUS_DELIVERED here means being shipped)
+        $order->update([
+            'ship_status' => Order::SHIP_STATUS_DELIVERED,
+            //in Order model, we use $casts to cast 'ship_data' to json type before it been saved in database, that means ship_data should be assigned with an array, so we can directly assign $data to ship_data here
+            'ship_data' => $data,
+        ]);
+
+        //return to previous page
+        return redirect()->back();
     }
 
 
