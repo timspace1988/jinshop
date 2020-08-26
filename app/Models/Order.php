@@ -31,7 +31,7 @@ class Order extends Model
 
     public static $shipStatusMap = [
         self::SHIP_STATUS_PENDING => 'Pending',
-        self::SHIP_STATUS_DELIVERED => 'Delivered',
+        self::SHIP_STATUS_DELIVERED => 'In delivery',
         self::SHIP_STATUS_RECEIVED => 'Received',
     ];
 

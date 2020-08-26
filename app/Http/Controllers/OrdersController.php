@@ -121,4 +121,25 @@ class OrdersController extends Controller
         $this->authorize('own', $order);
         return view('orders.show', ['order' => $order->load(['items.product', 'items.productSku'])]);
     }
+
+    //cusotomer get order received
+    public function received(Order $order, Request $request){
+        //dd('hello');
+        //check if the order belongs to current user
+        $this->authorize('own', $order);
+
+        //Check if the order is currently at a in-delivery status(this is the only right status before a customer can click receive button)
+        if($order->ship_status !==Order::SHIP_STATUS_DELIVERED){
+            throw new InvalidRequestException('Incorrect shipping status.');
+        }
+
+        //update shipping status to received
+        $order->update(['ship_status' => Order::SHIP_STATUS_RECEIVED]);
+
+        //return to previous page
+        //return redirect()->back();
+
+        //As we changed to use ajax sending received request, we need to change the return
+        return $order; 
+    }
 }

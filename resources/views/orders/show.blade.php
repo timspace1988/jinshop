@@ -42,9 +42,25 @@
                 </table>
                 <div class="order-bottom">
                     <div class="order-info">
-                        <div class="line"><div class="line-label">Address :&nbsp;&nbsp;</div><div class="line-value">{{ join(' ', $order->address) }}</div></div>
-                        <div class="line"><div class="line-label">Remark :&nbsp;&nbsp;&nbsp;</div><div class="line-value">{{ $order->remark ?: '-'  }}</div></div>
+                        <div class="line"><div class="line-label">Address :&nbsp;</div><div class="line-value">{{ join(' ', $order->address) }}</div></div>
+                        <div class="line"><div class="line-label">Remark :&nbsp;</div><div class="line-value">{{ $order->remark ?: '-'  }}</div></div>
                         <div class="line"><div class="line-label">Order no :&nbsp;</div><div class="line-value">{{ $order->no }}</div></div> 
+                        <!-- Shipping status -->
+                        <div class="line">
+                            <div class="line-label">Shippment :&nbsp;</div>
+                            <div class="line-value">{{ \App\Models\Order::$shipStatusMap[$order->ship_status] }}</div>
+                        </div>
+                        <!-- If the order has got shipdata, display it -->
+                        @if($order->ship_data)
+                            <div class="line">
+                                <div class="line-label">Courier :&nbsp;</div>
+                                <div class="line-value">{{ $order->ship_data['express_company'] }}</div>
+                            </div>
+                            <div class="line">
+                                <div class="line-label">Shipment no :&nbsp;</div>
+                                <div class="line-value">{{ $order->ship_data['express_no'] }}</div>
+                            </div>
+                        @endif
                     </div>
                     <div class="order-summary text-right">
                         <div class="total-amount">
@@ -74,10 +90,49 @@
                         </div>
                         @endif
                         <!-- finish pay button -->
+
+                        <!-- if order status is in-delivery(this project mark this status with delivered), display the received button -->
+                        @if($order->ship_status ===\App\Models\Order::SHIP_STATUS_DELIVERED)
+                            <div class="receive-button">
+                                <form action="{{ route('orders.received', [$order->id]) }}" method="post">
+                                    <!-- csrf token -->
+                                    {{ csrf_field() }}
+                                    <button type="button" id="btn-receive" class="btn btn-sm btn-success">Click to receive</button>
+                                </form>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
+
+@section('scriptsAfterJs')
+<script>
+    $(document).ready(function(){
+        //click on received button
+        $('#btn-receive').click(function(){
+            //Confirm window pops out
+            swal({
+                title: "Have you received your items?",
+                icon: "warning",
+                dangerous: true,
+                buttons: ['Cancel', 'Yes'],
+            }).then(function(ret){
+                //if click on cancel, then do nothing
+                if(!ret){
+                    return;
+                }
+                //submit the received request using ajax
+                axios.post('{{ route('orders.received', [$order->id])}}')
+                     .then(function(){
+                          //reload the page
+                          location.reload();
+                      });
+            });
+        });
+    });
+</script>
 @endsection
