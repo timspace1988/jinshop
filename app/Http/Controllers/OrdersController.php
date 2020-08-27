@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Events\OrderReviewed;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\OrderRequest;
+use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\ProductSku;
@@ -141,5 +142,61 @@ class OrdersController extends Controller
 
         //As we changed to use ajax sending received request, we need to change the return
         return $order; 
+    }
+
+    //display order review page/form of an order for customer(to view/write review)
+    public function review(Order $order){
+        //check if order belongs to current user
+        $this->authorize('own', $order);
+
+        //check if order has been paid (only paid order can be given reviews and rate by customer)
+        if(!$order->paid_at){
+            throw new InvalidRequestException('This order is not paid yet, you can not give a review.');
+        }
+
+        //load method can help avoid n+1
+        return view('orders.review', ['order' => $order->load(['items.productSku', 'items.product'])]);
+    }
+
+    //customer send their review for an order
+    public function sendReview(Order $order, SendReviewRequest $request){
+        //check if the order being reviewed belongs to current user
+        $this->authorize('own', $order);
+
+        //Only paid order can be given review ans rate
+        if(!$order->paid_at){
+            throw new InvalidRequestException('This order is not paid yet, you can not give a review');
+        }
+
+        //If the order has already been reviewed, cuustomer cannot re-submit review
+        if($order->reviewed){
+            throw new InvalidRequestException('You have already given a reivew to this order, do not submit again');
+        }
+
+        $reviews = $request->input('reviews');
+
+        //Use tansaction if failed, roll back
+        \DB::transaction(function() use($reviews, $order){
+            //iteration on each review data submited by customer
+            foreach($reviews as $review){
+                //find order-item been reviewed on that order (using order_item id in review data )
+                $orderItem = $order->items()->find($review['id']);
+                //Save this customer's review and rate for this order item
+                $orderItem->update([
+                    'rating' => $review['rating'],
+                    'review' => $review['review'],
+                    'reviewed_at' => Carbon::now(),
+                ]); 
+            }
+
+            //mark this order as reviewed
+            $order->update(['reviewed' => true]);
+
+            //trigger an OrderReviewed event to calculate and update this order's related products' average rating and review counts
+            event(new OrderReviewed($order));
+        });
+
+        //After review been submited, redirect back to revew display page
+        return redirect()->back();
     }
 }

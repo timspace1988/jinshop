@@ -61,7 +61,13 @@
                                                             Otherwise, your order will be closed.
                                                         @endif
                                                     </td>
-                                                    <td rowspan="{{ count($order->items) }}" class="text-center"><a href="{{ route('orders.show', ['order' => $order->id]) }}" class="btn btn-primary btn-sm">Details</a></td>
+                                                    <td rowspan="{{ count($order->items) }}" class="text-center">
+                                                        <a href="{{ route('orders.show', ['order' => $order->id]) }}" class="btn btn-primary btn-sm">Details</a>
+                                                        <!-- if order has been paid, display review/write review button -->
+                                                        @if($order->paid_at)
+                                                            <a href="{{ route('orders.review.show', ['order' => $order->id]) }}" class="btn btn-success btn-sm">{{ $order->reviewed ? 'Reviews' : 'Write reviews' }}</a>
+                                                        @endif
+                                                    </td>
                                                 @endif
                                             </tr>
                                         @endforeach

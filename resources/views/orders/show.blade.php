@@ -126,7 +126,7 @@
                     return;
                 }
                 //submit the received request using ajax
-                axios.post('{{ route('orders.received', [$order->id])}}')
+                axios.post('{{ route("orders.received", [$order->id])}}')
                      .then(function(){
                           //reload the page
                           location.reload();

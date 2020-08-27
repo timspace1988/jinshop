@@ -52,6 +52,32 @@
                         <div role="tabpanel" class="tab-pane active" id="product-detail-tab">
                             {!! $product->description !!}
                         </div>
+                        <!-- start of reviews panel -->
+                        <div role="tabpanel" class="tap-pane" id="product-reviews-tab">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <td>User</td>
+                                        <td>Item</td>
+                                        <td>Rating</td>
+                                        <td>Review</td>
+                                        <td>Time</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($reviews as $review)
+                                        <tr>
+                                            <td>{{ $review->order->user->name }}</td>
+                                            <td>{{ $review->productSku->title }}</td>
+                                            <td>{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</td>
+                                            <td>{{ $review->review }}</td>
+                                            <td>{{ $review->reviewed_at->format('H:i:s - d/m/Y') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- end of reviews panel -->
                     </div>
                 </div>
             </div>

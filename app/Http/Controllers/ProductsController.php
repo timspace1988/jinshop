@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequestException;
+use App\Models\OrderItem;
 use App\Models\Product;
 
 use Illuminate\Http\Request;
@@ -67,8 +68,15 @@ class ProductsController extends Controller
             $favored = boolval($user->favoriteProducts()->find($product->id)); 
         }
 
+        //get reviews for this product(actually we get all reviewed order items related to this product here, then pass these order items to blade file)
+        $reviews = OrderItem::query()->with(['order.user', 'productSku'])//avoid n + 1
+                                     ->where('product_id', $product->id)//all related order item
+                                     ->whereNotNull('reviewed_at')//only the ones that have been reviewed
+                                     ->orderBy('reviewed_at', 'desc')//sorted with review time from latest to earliest
+                                     ->limit(10)//get first 10 records
+                                     ->get();
 
-        return view('products.show', ['product' => $product, 'favored' => $favored]);
+        return view('products.show', ['product' => $product, 'favored' => $favored, 'reviews' => $reviews]);
     }
 
     //save product interface (will be sent request by ajax)
