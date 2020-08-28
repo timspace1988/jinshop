@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\Admin\HandleRefundRequest;
 use App\Http\Requests\Request;
 use App\Models\Order;
 use Encore\Admin\Controllers\AdminController;
@@ -119,6 +120,34 @@ class OrdersController extends AdminController
 
         //return to previous page
         return redirect()->back();
+    }
+
+    //Administrator's action of handling refund application
+    public function handleRefund(Order $order, HandleRefundRequest $request){
+        //dd('hello');
+        //exit();
+        //Check if the order's refund status is correct, must be applied status
+        if($order->refund_status !== Order::REFUND_STATUS_APPLIED){
+            throw new InvalidRequestException('Incorrect order-refund status');
+        }
+        //dd('hello');
+        //check if administrator approve the refund request
+        if($request->input('agree')){
+            //
+        }else{
+            //dd('hello');
+            //put reason of rejecting refund into order's extra field
+            $extra = $order->extra ?: [];
+            $extra['refund_disagree_reason'] = $request->input('reason'); 
+
+            //update order's extra and refund status
+            $order->update([
+                'extra' => $extra,
+                'refund_status' => Order::REFUND_STATUS_PENDING,//if admin doesn't approve refund, we will not display refund info on order details page, so we set it pending status
+            ]);
+
+            return $order;
+        }
     }
 
 

@@ -87,7 +87,128 @@
                         </tr>
                 @endif
                 <!-- end of ship module -->
+
+                <!-- if refund status is not pending, display the refund handle panel(and button) -->
+                @if($order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
+                    <tr>
+                        <td>Refund status: </td>
+                        <td colspan="2">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}  -  Reason: {{ $order->extra['refund_reason'] }}</td>
+                        <!-- if order's refund status is applied, display the refund handle button -->
+                        @if($order->refund_status === \App\Models\Order::REFUND_STATUS_APPLIED)
+                            <td>
+                                <button class="btn btn-sm btn-success" id="btn-refund-agree">Approve</button>
+                                <button class="btn btn-sm btn-danger" id="btn-refund-disagree">Decline</button>
+                            </td>
+                            
+                        @endif
+                    </tr>
+                @endif
             </tbody>
         </table>
     </div>
 </div>
+
+
+<script>
+    $(document).ready(function(){
+        //click decline button on refund handle panel
+        $('#btn-refund-disagree').click(function(){
+            //Note: the version of SweetAlert (swal) used in laravel-admin is different from what we used in front end page, so the attributes are also different
+            swal({
+                title: 'Please enter the reason for decline',
+                input: 'text',
+                showCancelButton: true,
+                confirmButtonText: "Confirm",
+                cancelButtonText: "Cancel",
+                showLoaderOnConfirm: true,
+                preConfirm: function(inputValue){
+                    if(!inputValue){
+                        swal('Decline reason cannot be empty', '', 'error');
+                        return false;
+                    }
+                    //laravel-admin doesn't have axios, so here we use jQuery's ajax() to send our ajax request
+                    //try{
+
+                    return $.ajax({
+                        url: '{{ route("admin.orders.handle_refund", [$order->id]) }}',
+                        type: 'POST',
+                        data: JSON.stringify({//convert data into JSON string
+                            'agree': false,//without '' just use agree: false is ok
+                            'reason': inputValue,//same with above
+                            //CSRF token, in laravel-admin, we can use LA.token to get a CSRF token
+                            '_token': LA.token,//same with above
+                        }),
+                        contentType: 'application/json; charset=utf-8',//Request's data type JSON
+                        // dataType: 'json',
+                    });
+
+                    // } catch(e){
+                    //     console.log(e);
+                    // }
+                },
+                allowOutsideClick: false
+            }).then(function(ret){
+                //if admin click on cancel button, we do nothing
+                if(ret.dismiss === 'cancel'){
+                    return;
+                }
+                swal({
+                    title: 'Operation successful',
+                    type: 'success'
+                }).then(function(){
+                    //when user hit the ok button on pop-out notification window, reload the page
+                    location.reload();
+                });
+            });
+        }); 
+    });
+</script>
+
+<!-- <script>
+$(document).ready(function() {
+  // 不同意 按钮的点击事件
+  $('#btn-refund-disagree').click(function() {
+    // Laravel-Admin 使用的 SweetAlert 版本与我们在前台使用的版本不一样，因此参数也不太一样
+    swal({
+      title: '输入拒绝退款理由',
+      input: 'text',
+      showCancelButton: true,
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      showLoaderOnConfirm: true,
+      preConfirm: function(inputValue) {
+        if (!inputValue) {
+          swal('理由不能为空', '', 'error')
+          return false;
+        }
+        // Laravel-Admin 没有 axios，使用 jQuery 的 ajax 方法来请求
+        return $.ajax({
+          url: '{{ route('admin.orders.handle_refund', [$order->id]) }}',
+          type: 'POST',
+          data: JSON.stringify({   // 将请求变成 JSON 字符串
+            agree: false,  // 拒绝申请
+            reason: inputValue,
+            // 带上 CSRF Token
+            // Laravel-Admin 页面里可以通过 LA.token 获得 CSRF Token
+            _token: LA.token,
+          }),
+          contentType: 'application/json',  // 请求的数据格式为 JSON
+        });
+      },
+      allowOutsideClick: false
+    }).then(function (ret) {
+      // 如果用户点击了『取消』按钮，则不做任何操作
+      if (ret.dismiss === 'cancel') {
+        return;
+      }
+      swal({
+        title: '操作成功',
+        type: 'success'
+      }).then(function() {
+        // 用户点击 swal 上的按钮时刷新页面
+        location.reload();
+      });
+    });
+  });
+});
+</script> -->
