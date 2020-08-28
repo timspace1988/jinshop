@@ -23,10 +23,10 @@ class Order extends Model
 
     public static $refundStatusMap = [
         self::REFUND_STATUS_PENDING => 'Pending',
-        self::REFUND_STATUS_APPLIED => 'Applied',
-        self::REFUND_STATUS_PROCESSING => 'Processing',
-        self::REFUND_STATUS_SUCCESS => 'Success',
-        self::REFUND_STATUS_FAILED => 'Failed',
+        self::REFUND_STATUS_APPLIED => 'Applied for refund',
+        self::REFUND_STATUS_PROCESSING => 'Refund is in processing',
+        self::REFUND_STATUS_SUCCESS => 'Refunded',
+        self::REFUND_STATUS_FAILED => 'Refund declined',
     ];
 
     public static $shipStatusMap = [

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\OrderReviewed;
 use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\ApplyRefundRequest;
 use App\Http\Requests\OrderRequest;
 use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
@@ -198,5 +199,33 @@ class OrdersController extends Controller
 
         //After review been submited, redirect back to revew display page
         return redirect()->back();
+    }
+
+    //Customer apply for refund
+    public function applyRefund(Order $order, ApplyRefundRequest $request){
+        //check if the order belongs to current user
+        $this->authorize('own', $order);
+
+        //chefck if the order has been paid
+        if(!$order->paid_at){
+            throw new InvalidRequestException('This order is not paid yet.');
+        }
+
+        //check the order's refund status, only pending status is allowed  to apply for refund
+        if($order->refund_status !== Order::REFUND_STATUS_PENDING){
+            throw new InvalidRequestException('You have already lodged refunding request on this order. Do not submit again.');
+        }
+
+        //Create data for order's extra field, and put user's refund reason in it
+        $extra = $order->extra ?: [];
+        $extra['refund_reason'] = $request->input('reason');
+
+        //update order's refund status and extra
+        $order->update([
+            'refund_status' => Order::REFUND_STATUS_APPLIED,
+            'extra' => $extra,
+        ]);
+        
+        return $order;
     }
 }

@@ -50,7 +50,7 @@
                             <div class="line-label">Shippment :&nbsp;</div>
                             <div class="line-value">{{ \App\Models\Order::$shipStatusMap[$order->ship_status] }}</div>
                         </div>
-                        <!-- If the order has got shipdata, display it -->
+                        <!-- If the order has got shipment data, display it -->
                         @if($order->ship_data)
                             <div class="line">
                                 <div class="line-label">Courier :&nbsp;</div>
@@ -59,6 +59,17 @@
                             <div class="line">
                                 <div class="line-label">Shipment no :&nbsp;</div>
                                 <div class="line-value">{{ $order->ship_data['express_no'] }}</div>
+                            </div>
+                        @endif
+                        <!-- If order is paid and refund status is not peding, display refund info -->
+                        @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
+                            <div class="line">
+                                <div class="line-label">Refund :&nbsp;</div>
+                                <div class="line-value">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}</div>
+                            </div>
+                            <div class="line">
+                                <div class="line-label">Reason :&nbsp;</div>
+                                <div class="line-value">{{ $order->extra['refund_reason'] }}</div>
                             </div>
                         @endif
                     </div>
@@ -74,7 +85,7 @@
                                     @if($order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
                                         Paid
                                     @else
-                                        {{ \App\Models\Order::refundStatusMap[$order->refund_status] }}
+                                        {{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}
                                     @endif
                                 @elseif($order->closed)
                                     Closed
@@ -99,6 +110,12 @@
                                     {{ csrf_field() }}
                                     <button type="button" id="btn-receive" class="btn btn-sm btn-success">Click to receive</button>
                                 </form>
+                            </div>
+                        @endif
+                        <!-- if order is paid and refund status is pending, then display apply for refund button -->
+                        @if($order->paid_at && $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
+                            <div class="refund-button">
+                                <button class="btn btn-sm btn-danger" id="btn-apply-refund">Apply for refund</button>
                             </div>
                         @endif
                     </div>
@@ -131,6 +148,30 @@
                           //reload the page
                           location.reload();
                       });
+            });
+        });
+
+        //click on apply for refund button
+        $('#btn-apply-refund').click(function(){
+            swal({
+                text: 'Please enter your reason for refund.',
+                content: "input",
+                //the 'input' here will be used by following function as param in this script, it's different from $request->input('param') in controller, which is the data sent via post method                
+            }).then(function(input){
+                //when user hit the  submit button on pop-out window, it will execute this function
+                if(!input){
+                    swal('You have not enter the reason for refund');
+                    return
+                }
+
+                //request access for refund interface
+                axios.post('{{ route("orders.apply_refund", [$order->id]) }}', {reason: input})
+                     .then(function(){
+                         swal('Your request for refund is submitted', '', 'success').then(function(){
+                             //when user hit the confirm button on pop-out window, reload the page
+                             location.reload();
+                         });
+                     });
             });
         });
     });

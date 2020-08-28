@@ -15993,7 +15993,8 @@ footer .container p a {
 }
 
 .orders-show-page .payment_buttons,
-.orders-show-page .receive-button {
+.orders-show-page .receive-button,
+.orders-show-page .refund-button {
   margin-top: 10px;
   padding-right: 10px;
 }
