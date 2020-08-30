@@ -50,41 +50,44 @@
 
                 <!-- display the shipment form if order's ship status is pending-->
                 @if($order->ship_status === \App\Models\Order::SHIP_STATUS_PENDING)
-                    <tr>
-                        <td colspan="4">
-                            <form action="{{ route('admin.orders.ship', [$order->id]) }}" method="post" class="form-inline">
-                                <!-- csrf token -->
-                                {{ csrf_field() }}
-                                <div class="form-group {{ $errors->has('express_company') ? 'has-error' : '' }}">
-                                    <label for="express_company" class="control-label">Courier company</label>
-                                    <input type="text" id="express_company" name="express_company" value="" class="form-controll" placeholder="Enter courier name">
-                                    @if($errors->has('express_company'))
-                                        @foreach($errors->get('express_company') as $msg)
-                                            <span class="help-block">{{ $msg }}</span>
-                                        @endforeach
-                                    @endif
-                                </div>
-                                <div class="form-group {{ $errors->has('express_no') ? 'has-error' : '' }}">
-                                    <label for="express_no" class="control-label">Ship no</label>
-                                    <input type="text" id="express_no" name="express_no" value="" class="form-control" placeholder="Enter shipment no">
-                                    @if($errors->has('express_no'))
-                                        @foreach($errors->get('express_no') as $msg)
-                                            <span class="help-block">{{ $msg }}</span>
-                                        @endforeach
-                                    @endif
-                                </div>
-                                <button type="submit" class="btn btn-success" id="ship-btn">Deliver</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <!-- If not pending, means already shipped, we dispay the info of courier and shipment no -->
-                    @else
+                    <!-- but we have an exception: if admin has approved refund, there will be no need to send shipment, it measn we don't need shipement form here, so we need to exclude that situation here -->
+                    @if($order->refund_status !== \App\Models\Order::REFUND_STATUS_SUCCESS)
                         <tr>
-                            <td>Courier: </td>
-                            <td>{{ $order->ship_data['express_company'] }}</td>
-                            <td>Shipment no: </td>
-                            <td>{{ $order->ship_data['express_no'] }}</td>
+                            <td colspan="4">
+                                <form action="{{ route('admin.orders.ship', [$order->id]) }}" method="post" class="form-inline">
+                                    <!-- csrf token -->
+                                    {{ csrf_field() }}
+                                    <div class="form-group {{ $errors->has('express_company') ? 'has-error' : '' }}">
+                                        <label for="express_company" class="control-label">Courier company</label>
+                                        <input type="text" id="express_company" name="express_company" value="" class="form-controll" placeholder="Enter courier name">
+                                        @if($errors->has('express_company'))
+                                            @foreach($errors->get('express_company') as $msg)
+                                                <span class="help-block">{{ $msg }}</span>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                    <div class="form-group {{ $errors->has('express_no') ? 'has-error' : '' }}">
+                                        <label for="express_no" class="control-label">Ship no</label>
+                                        <input type="text" id="express_no" name="express_no" value="" class="form-control" placeholder="Enter shipment no">
+                                        @if($errors->has('express_no'))
+                                            @foreach($errors->get('express_no') as $msg)
+                                                <span class="help-block">{{ $msg }}</span>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                    <button type="submit" class="btn btn-success" id="ship-btn">Deliver</button>
+                                </form>
+                            </td>
                         </tr>
+                    @endif
+                <!-- If not pending, means already shipped, we dispay the info of courier and shipment no -->
+                @else
+                    <tr>
+                        <td>Courier: </td>
+                        <td>{{ $order->ship_data['express_company'] }}</td>
+                        <td>Shipment no: </td>
+                        <td>{{ $order->ship_data['express_no'] }}</td>
+                    </tr>
                 @endif
                 <!-- end of ship module -->
 
@@ -139,6 +142,9 @@
                             '_token': LA.token,//same with above
                         }),
                         contentType: 'application/json; charset=utf-8',//Request's data type JSON
+                        success: function(d){
+                            console.log(d);
+                        },
                         // dataType: 'json',
                     });
 
@@ -161,6 +167,50 @@
                 });
             });
         }); 
+
+        //click on approve button in refund handle panel
+        $('#btn-refund-agree').click(function(){
+            swal({
+                title: 'Do you approve the refund?',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+                showLoaderOnConfirm: true,
+                preConfirm: function(){
+                    return $.ajax({
+                        url: '{{ route("admin.orders.handle_refund", [$order->id]) }}',
+                        type: 'POST',
+                        data: JSON.stringify({
+                            agree: true,//agree to refund
+                            _token: LA.token,
+                        }),
+                        //dataType: 'json',
+                        contentType: 'application/json',
+                        // success: function(d){
+                        //     //alert(d.view_data);
+                        //     console.log(d);
+                        //     //return;
+                        //     alert(d);
+                        // },
+                    });
+                },
+                allowOutsideClick: false,
+            }).then(function(ret){
+                //alert(ret.data);
+                //if user hit cancel button, do nothing()
+                if(ret.dismiss === 'cancel'){
+                    return;
+                }
+                swal({
+                    title: 'Operation successful',
+                    type: 'success',
+                }).then(function(){
+                    //if user hit ok button on swal window, reload the page
+                    location.reload();
+                });
+            });
+        });
     });
 </script>
 

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Model;
-
+use Ramsey\Uuid\Uuid;
 
 class Order extends Model
 {
@@ -106,5 +106,15 @@ class Order extends Model
         */
         \Log::warning('Failed to generate a unique order no');
         return false;
+    }
+
+    //generate uniqi refund number(we need to use a uniqe number for refund if refund is approved)
+    public function getAvailableRefundNo(){
+        do{
+            //Uuid class can generate a very (big changce) unique string
+            $no = Uuid::uuid4()->getHex();
+        }while(self::query()->where('refund_no', $no)->exists());//a do-while, if same no exists in orders table, the do {} will continue, 
+
+        return $no;
     }
 }

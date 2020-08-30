@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Admin\HandleRefundRequest;
 use App\Http\Requests\Request;
@@ -12,6 +13,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Response;
 
 class OrdersController extends AdminController
 {
@@ -124,8 +126,7 @@ class OrdersController extends AdminController
 
     //Administrator's action of handling refund application
     public function handleRefund(Order $order, HandleRefundRequest $request){
-        //dd('hello');
-        //exit();
+        
         //Check if the order's refund status is correct, must be applied status
         if($order->refund_status !== Order::REFUND_STATUS_APPLIED){
             throw new InvalidRequestException('Incorrect order-refund status');
@@ -133,7 +134,13 @@ class OrdersController extends AdminController
         //dd('hello');
         //check if administrator approve the refund request
         if($request->input('agree')){
-            //
+            //firstly, if agree to refund, we need to clear previous refund delince reason
+            $extra = $order->extra ?: [];
+            unset($extra['refund_disagree_reason']);
+            $order->update(['extra' => $extra]);
+            
+            //execute refund logic
+            $this->_refundOrder($order);
         }else{
             //dd('hello');
             //put reason of rejecting refund into order's extra field
@@ -148,8 +155,68 @@ class OrdersController extends AdminController
 
             return $order;
         }
+
+    
     }
 
+    //method execute refund logic(this method will be called in handleRefund method if admi agree to refund)
+    public function _refundOrder(Order $order){
+        //return "test";
+        //return Response::json(['msg' => 'test']);
+  
+
+        //Check what payment method is used by customer on this order
+        switch($order->payment_method){
+            case 'wechat':
+                //we leave wechat out temporarily,
+                break;
+            case 'alipay':
+                //generate a refund no
+                $refundNo = $order->getAvailableRefundNo();
+
+                //call refund method of alily instance, $ret is the returned data
+                try{
+                    $ret = app('alipay')->refund([
+                        'out_trade_no' => $order->no,//order no
+                        'refund_amount' => $order->total_amount,
+                        'out_request_no' =>$refundNo,//refund no we just generated
+                    ]);
+                }catch(\Throwable $t){
+                    return['code' => $t->getCode(), 'msg' => $t->getMessage()];
+                }
+                //$ret = 'alipay sandbox server collapsed, use this for just for test.';
+
+
+                //according to alipay document, if returned data contains sub_code field, it means refund failed
+                //if(!$ret){
+                if($ret->sub_code){
+                    //save refund failed code into order's extra field
+                    $extra = $order->extra;
+                    $extra['refund_failed_code'] = $ret->sub_code;
+                    //Save(update) order's refund_no, refund_status and extra
+                    $order->update([
+                        'refund_no' => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_FAILED,
+                        'extra' => $extra,
+                    ]);
+                   return $ret; 
+                }else{
+                    // if refund sucess, save the refund no and update refund status
+                    $order->update([
+                        'refund_no' => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_SUCCESS,
+                    ]);
+                    return $ret;
+                }
+                break;
+            default:
+                //usually will not happened, doing this will make system rebust
+                throw new InternalException('Unknown payment method: ' . $order->payment_method);
+                break;
+        }
+
+
+    } 
 
     // /**
     //  * Make a show builder.
