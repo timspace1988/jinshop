@@ -67,6 +67,19 @@
                                 <textarea name="remark" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
+                        <!-- coupon section -->
+                        <div class="form-group row">
+                            <label class="col-form-label col-sm-3 text-md-right">Coupon</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="coupon_code">
+                                <span class="form-text text-muted" id="coupon_desc"></span>
+                            </div>
+                            <div class="col-sm-3">
+                                <button type="button" class="btn btn-success" id="btn-check-coupon">Apply</button>
+                                <button type="button" class="btn btn-danger" style="display: none;" id="btn-cancel-coupon">Remove</button>
+                            </div>
+                        </div>
+                        <!-- end of coupon section -->
                         <div class="form-group">
                             <div class="offset-sm-3 col-sm-3">
                                 <button type="button" class="btn btn-primary btn-create-order">Place order</button>
@@ -148,7 +161,7 @@
                     amount: $input.val(),
                 });
             });
-            axios.post('{{ route('orders.store') }}', req)
+            axios.post('{{ route("orders.store") }}', req)
                  .then(
                      function(response){
                         //alert(response.data.msg);
@@ -176,6 +189,57 @@
                         }
                     }
                  );
+        });
+
+        //Click on coupon 'Apply' button
+        $('#btn-check-coupon').click(function(){
+            //get the code user just entered
+            var code = $('input[name=coupon_code]').val();
+
+            //if customer doesn't enter any coupon code, an window propt will poped out
+            if(!code){
+                swal('Pleas enter your coupon code', '', 'warning');
+                return;
+            }
+
+            //call apply interface, send request to show method in CouponCodesController(customer one)
+            axios.get('/coupon_codes/' + encodeURIComponent(code))
+                  //if we do not use encodeURIComponent() and the code is test/test, url will be /coupon_codes/test/test, here it will be /coupon_codes/test%2Ftest
+                 .then(
+                     //first param in then is a call-back for successful request
+                     function(response){
+                        //console.log(response);
+                        //alert(response.data.description);
+                        //return;
+                        $('#coupon_desc').text(response.data.description);//display discount info(description is an attribute we create in CouponCode model)
+                        $('input[name=coupon_code]').prop('readonly', true);//set code input field read only
+                        $('#btn-cancel-coupon').show();//set cancel button visiable
+                        $('#btn-check-coupon').hide()//set apply button invisiable;
+                     },
+                     //second param in then is the call-back if any error occors
+                     function(error){
+                         //if http status is 404, it means the coupon doesn't exist or not enabled
+                         if(error.response.status === 404){
+                             swal('The coupon does not exist.', '', 'error');
+                         }else if(error.response.status === 403){
+                             //if status is 403, it means there are other conditions not met
+                             swal(error.response.data.msg, '', 'error');
+                         }else{
+                             console.log(error);
+                             //return;
+                             //other errors
+                             swal('System error.', '', 'error');
+                         }
+                     }
+                 );
+        });
+
+        //Click cancel button on coupon section
+        $('#btn-cancel-coupon').click(function(){
+            $('#coupon_desc').text('');//clear discount info
+            $('#input[name=coupon_code]').prop('readonly', false);//re-activate the coupon input area
+            $('#btn-cancel-coupon').hide();//set cancel button invisible
+            $('#btn-check-coupon').show();//set apply button visible again
         });
     });
 </script>
