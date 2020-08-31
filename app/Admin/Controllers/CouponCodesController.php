@@ -52,6 +52,11 @@ class CouponCodesController extends AdminController
         $grid->column('usage', 'Usage')->display(function($value){
             return "{$this->used} / {$this->total}";
         });
+
+        $grid->enabled('Enabled')->display(function($value){
+            return $value ? 'Yes' : 'No';
+        });
+
         $grid->created_at('Created_at');
         $grid->actions(function($actions){
             $actions->disableView();
@@ -102,7 +107,7 @@ class CouponCodesController extends AdminController
     // }
 
     /**
-     * Make a form builder.
+     * Make a form builder. Create new Coupon code
      *
      * @return Form
      */
@@ -110,16 +115,52 @@ class CouponCodesController extends AdminController
     {
         $form = new Form(new CouponCode());
 
-        $form->text('name', __('Name'));
-        $form->text('code', __('Code'));
-        $form->text('type', __('Type'));
-        $form->decimal('value', __('Value'));
-        $form->number('total', __('Total'));
-        $form->number('used', __('Used'));
-        $form->decimal('min_amount', __('Min amount'));
-        $form->datetime('not_before', __('Not before'))->default(date('Y-m-d H:i:s'));
-        $form->datetime('not_after', __('Not after'))->default(date('Y-m-d H:i:s'));
-        $form->switch('enabled', __('Enabled'));
+        $form->display('id', 'ID');
+        $form->text('name', 'Coupon name')->rules('required');
+        $form->text('code', 'Coupon code')->rules(function($form){
+            //if form-model()-id is not null, it means we are editing an existing coupon, so we must exclude this coupon code from unique rule
+            if($id = $form->model()->id){
+                return 'nullable|unique:coupon_codes,code,' . $id . ',id'; 
+            }else{
+                return 'nullable|unique:coupon_codes';
+            }
+            
+        });
+        $form->radio('type', 'Coupon type')->options(CouponCode::$typeMap)->rules('required')->default(CouponCode::TYPE_FIXED);//we must give it a default here, because of the bug of laravel-admin 
+        $form->text('value', 'Discount')->rules(function($form){
+            if(request()->input('type') === CouponCode::TYPE_PERCENT){
+                //if you choose percent type, the discount musht be between 1 and 99
+                return 'required|numeric|between:1,99';
+            }else{
+                //if the type is fixed, must be over 0.01 
+                return 'required|numeric|min:0.01';
+            }
+        });
+        $form->text('total', 'Total')->rules('required|numeric|min:0');
+        $form->text('min_amount', 'Minum amount requirement')->rules('required|numeric|min:0');
+        $form->datetime('not_before', 'Not before');
+        $form->datetime('not_after', 'Not after');
+        $form->radio('enabled', 'Enabled')->options(['1' => 'Yes', '0' => 'No']);
+
+        //the following codes will be executed shen save button is clicked
+        $form->saving(function(Form $form){
+            //If the code field on this form is nullable, so if user dosen't input code, then system will generate one 
+            if(!$form->code){
+                $form->code = CouponCode::findAvaiableCode();
+            }
+        });
+
+
+        // $form->text('name', __('Name'));
+        // $form->text('code', __('Code'));
+        // $form->text('type', __('Type'));
+        // $form->decimal('value', __('Value'));
+        // $form->number('total', __('Total'));
+        // $form->number('used', __('Used'));
+        // $form->decimal('min_amount', __('Min amount'));
+        // $form->datetime('not_before', __('Not before'))->default(date('Y-m-d H:i:s'));
+        // $form->datetime('not_after', __('Not after'))->default(date('Y-m-d H:i:s'));
+        // $form->switch('enabled', __('Enabled'));
 
         return $form;
     }
