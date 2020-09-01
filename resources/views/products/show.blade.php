@@ -53,7 +53,7 @@
                             {!! $product->description !!}
                         </div>
                         <!-- start of reviews panel -->
-                        <div role="tabpanel" class="tap-pane" id="product-reviews-tab">
+                        <div role="tabpanel" class="tab-pane" id="product-reviews-tab">
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>

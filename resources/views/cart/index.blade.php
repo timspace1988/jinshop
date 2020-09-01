@@ -140,6 +140,7 @@
                 address_id: $('#order-form').find('select[name=address]').val(),
                 items: [],
                 remark: $('#order-form').find('textarea[name=remark]').val(),
+                coupon_code: $('input[name=coupon_code]').val(),//get coupon code from input
             };
             //Do iteration on all <tr> tag with data-id attribute within <table>, which is every product sku in this cart
             $('table tr[data-id]').each(function(){
@@ -183,6 +184,8 @@
                             });
                             html += '</div>';
                             swal({content: $(html)[0], icon: 'error'});
+                        }else if(error.response.status === 403){
+                            swal(error.response.data.msg);
                         }else{
                             //Other errors might be caused by system collapse
                             swal('System error', '', 'error');
@@ -237,7 +240,7 @@
         //Click cancel button on coupon section
         $('#btn-cancel-coupon').click(function(){
             $('#coupon_desc').text('');//clear discount info
-            $('#input[name=coupon_code]').prop('readonly', false);//re-activate the coupon input area
+            $('input[name=coupon_code]').prop('readonly', false);//re-activate the coupon input area
             $('#btn-cancel-coupon').hide();//set cancel button invisible
             $('#btn-check-coupon').show();//set apply button visible again
         });

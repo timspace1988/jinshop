@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Events\OrderReviewed;
+use App\Exceptions\CouponCodeUnavailableException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\ApplyRefundRequest;
 use App\Http\Requests\OrderRequest;
 use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
+use App\Models\CouponCode;
 use App\Models\Order;
 use App\Models\ProductSku;
 use App\Models\UserAddress;
@@ -25,13 +27,25 @@ class OrdersController extends Controller
 
         $address = UserAddress::find($request->input('address_id'));
 
+        $coupon = null;
+
+        //if customer submit the coupon code, we need to get it from database
+        if($code = $request->input('coupon_code')){
+            $coupon = CouponCode::where('code', $code)->first();
+
+            //if we don't find the coupon, throw the exception
+            if(!$coupon){
+                throw new CouponCodeUnavailableException('Coupon code does not exist.');
+            }
+        }
+
         // try{
         //     return $orderService->store($user, $address, $request->input('remark'), $request->input('items'));
         // }catch(\Throwable $t){
         //     return ['msg' => $t->getMessage()];
         // }
 
-        return $orderService->store($user, $address, $request->input('remark'), $request->input('items'));
+        return $orderService->store($user, $address, $request->input('remark'), $request->input('items'), $coupon);
 
         /*
 

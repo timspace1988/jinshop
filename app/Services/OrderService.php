@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\CouponCodeUnavailableException;
 use App\Models\Order;
 use App\Models\UserAddress;
 use App\Models\User;
@@ -9,13 +10,21 @@ use Carbon\Carbon;
 use App\Models\ProductSku;
 use App\Exceptions\InvalidRequestException;
 use App\Jobs\CloseOrder;
+use App\Models\CouponCode;
 
 class OrderService
 {
     //Create an order
-    public function store(User $user, UserAddress $address, $remark, $items){
+    public function store(User $user, UserAddress $address, $remark, $items, CouponCode $coupon = null){
+        //if coupon code is passed and not null, we need to firstly check its availability, if doesn't pass, it will throw CouponCodeUnavailableException and go back to precious page before transcaton is executed
+        //otherwise, if we leave it after we calculated the order amount, any breach of coupon requirment will end up with a transaction rollback, 
+        if($coupon){
+            $coupon->checkAvailable();//checkAvailable($orderAmount = null), as we haven't got the total amount  for order, we don't pass it here for checking amount requirement
+        }
+
+
         //Use tansaction to do database operation, if any exception throwed, it will roll back
-        $order = \DB::transaction(function() use($user, $address, $remark, $items){
+        $order = \DB::transaction(function() use($user, $address, $remark, $items, $coupon){
             //update address's last used time
             $address->update(['last_used_at' => Carbon::now()]);
 
@@ -58,6 +67,30 @@ class OrderService
                 }
             }
 
+            // try{
+
+            //from here forward, we have got the total order amount, so we do the coupon available checking again with the orderAmount passed 
+            if($coupon){
+                
+                $coupon->checkAvailable($totalAmount);
+                //if passing the checking, the code will continue to execute
+                
+                //get the new total amount with discount applied
+                $totalAmount = $coupon->getAdjustedPrice($totalAmount);
+                
+                //get order associated with it coupon
+                $order->couponCode()->associate($coupon);
+                
+                //increase the used value of this coupon, and check the returned data
+                if($coupon->changeUsed() <=0 ){
+                    throw new CouponCodeUnavailableException('Coupon code is used out.');//this usually happened when other customers used out the coupon during we placing the order
+                }
+                
+            }
+
+           
+
+
             //Update the total amount of this order
             $order->update(['total_amount' => $totalAmount]);
 
@@ -68,6 +101,11 @@ class OrderService
             //we use app() to create a CartService instance, we should avoid using 'new' to create if the class's contructor will be modified and have more params later,
             //because we need to change the params in new CartService(param, param) in every places we created it with 'new'
             //and this store method is called manually by us, not like the store method in controller, which is called by laravel, so we cannot use auto inject here 
+
+            // }catch(\Throwable $t){
+            //     return response()->json(['msg' => $t->getMessage()]);
+            // }
+
             return $order;
         });
 
