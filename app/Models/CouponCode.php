@@ -78,7 +78,7 @@ class CouponCode extends Model
     //Check if a coupon is available, 
     //we will check it in CouponCodesController's show method when user click apply coupon button
     //However before user finally place the order. the coupon could have already been used out or changed condisions, so we need to recheck its availability when placing the order
-    public function checkAvailable($orderAmount = null){
+    public function checkAvailable(User $user, $orderAmount = null){
         if(!$this->enabled){
             throw new CouponCodeUnavailableException('Coupon code does not exist.');
         }
@@ -98,6 +98,21 @@ class CouponCode extends Model
         //we will pass the orderAmount in this method, if it is null, it will not execute following code
         if(!is_null($orderAmount) && $orderAmount < $this->min_amount){
             throw new CouponCodeUnavailableException('Order amount does not meet minimum requirement.');
+        }
+
+        //One customer can only use a specific coupon code for once (paid-and-not-refunded order counts, unpaid-and-unclosed order counts)
+        $used = Order::where('user_id', $user->id)//find all this user's order
+                        ->where('coupon_code_id', $this->id)//filter for all orders realated with this coupon code
+                        ->where(function($query){
+                            $query->where(function($query){
+                                $query->whereNull('paid_at')->where('closed', false);//filter for order not-paid and not-closed
+                            })->orWhere(function($query){
+                                $query->whereNotNull('paid_at')->where('refund_status', '!=', Order::REFUND_STATUS_SUCCESS);//filter for orders paid and not-refunded
+                            });
+                        })->exists();
+
+        if($used){
+            throw new CouponCodeUnavailableException('This coupon code has been used.');
         }
     }
 

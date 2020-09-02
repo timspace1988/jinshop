@@ -187,6 +187,7 @@
                         }else if(error.response.status === 403){
                             swal(error.response.data.msg);
                         }else{
+                            //console.log(error.response);
                             //Other errors might be caused by system collapse
                             swal('System error', '', 'error');
                         }
@@ -228,7 +229,7 @@
                              //if status is 403, it means there are other conditions not met
                              swal(error.response.data.msg, '', 'error');
                          }else{
-                             console.log(error);
+                             console.log(error.response);
                              //return;
                              //other errors
                              swal('System error.', '', 'error');

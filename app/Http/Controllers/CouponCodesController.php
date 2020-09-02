@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class CouponCodesController extends Controller
 {
-    public function show($code){
+    public function show($code, Request $request){
 
         if(!$record = CouponCode::where('code', $code)->first()){
             //abort(404);//terminate the execution of application
@@ -34,7 +34,7 @@ class CouponCodesController extends Controller
         // }
 
         //we have put above logic in CouponCode model's checkAvailable method
-        $record->checkAvailable();
+        $record->checkAvailable($request->user());
         
 
         return $record;

@@ -74,6 +74,14 @@
                         @endif
                     </div>
                     <div class="order-summary text-right">
+                        <!-- display coupon info -->
+                        @if($order->couponCode)
+                        <div class="text-primary">
+                            <span>Discount with coupon applied: </span>
+                            <div class="value">{{ $order->couponCode->description }}</div>
+                        </div>
+                        @endif
+                        <!-- end of display coupon info -->
                         <div class="total-amount">
                             <span>Total amount: </span>
                             <div class="value">${{ $order->total_amount }}</div>

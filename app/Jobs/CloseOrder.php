@@ -50,6 +50,11 @@ class CloseOrder implements ShouldQueue//This job will be put in queue for execu
             foreach($this->order->items as $item){
                 $item->productSku->addStock($item->amount);
             } 
+
+            //if this coupon is used on this order, when order closed, we need to add the usage back to total(this coupon's used field - 1)
+            if($this->order->couponCode){
+                $this->order->couponCode->changeUsed(false);
+            }
         });
 
     }

@@ -19,7 +19,7 @@ class OrderService
         //if coupon code is passed and not null, we need to firstly check its availability, if doesn't pass, it will throw CouponCodeUnavailableException and go back to precious page before transcaton is executed
         //otherwise, if we leave it after we calculated the order amount, any breach of coupon requirment will end up with a transaction rollback, 
         if($coupon){
-            $coupon->checkAvailable();//checkAvailable($orderAmount = null), as we haven't got the total amount  for order, we don't pass it here for checking amount requirement
+            $coupon->checkAvailable($user);//checkAvailable($orderAmount = null), as we haven't got the total amount  for order, we don't pass it here for checking amount requirement
         }
 
 
@@ -72,7 +72,7 @@ class OrderService
             //from here forward, we have got the total order amount, so we do the coupon available checking again with the orderAmount passed 
             if($coupon){
                 
-                $coupon->checkAvailable($totalAmount);
+                $coupon->checkAvailable($user, $totalAmount);
                 //if passing the checking, the code will continue to execute
                 
                 //get the new total amount with discount applied
