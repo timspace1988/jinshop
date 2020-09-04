@@ -116,7 +116,7 @@ class Order extends Model
     }
 
     //generate uniqi refund number(we need to use a uniqe number for refund if refund is approved)
-    public function getAvailableRefundNo(){
+    public static function getAvailableRefundNo(){
         do{
             //Uuid class can generate a very (big changce) unique string
             $no = Uuid::uuid4()->getHex();
