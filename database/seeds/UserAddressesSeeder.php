@@ -14,7 +14,7 @@ class UserAddressesSeeder extends Seeder
     public function run()
     {
         User::all()->each(function(User $user){
-            factory(UserAddress::class, random_int(1, 3))->create([['user_id' => $user->id]]);//randomly create 1 to 3 addresses for each user
+            factory(UserAddress::class, random_int(1, 3))->create(['user_id' => $user->id]);//randomly create 1 to 3 addresses for each user
         });
     }
 }
