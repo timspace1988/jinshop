@@ -21,6 +21,11 @@ class Product extends Model
         return $this->hasMany(ProductSku::class);
     }
 
+    //relationship with Category
+    public function category(){
+        return $this->belongsTo(Category::class);
+    }
+
     //convert image attributes to its absolute path
     //this function will allows to call an attribute 'image_url' e.g. $this->image_url
     public function getImageUrlAttribute(){
