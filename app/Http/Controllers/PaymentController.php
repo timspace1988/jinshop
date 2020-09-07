@@ -26,7 +26,7 @@ class PaymentController extends Controller
         return app('alipay')->web([
             'out_trade_no' => $order->no,//order no is important, we must  ensure it is unique(check order model how we generate order no)
             'total_amount' => $order->total_amount,//support two digits after dot
-            'subject' => 'Payment to jiashop for order: ' . $order->no,
+            'subject' => 'Payment to jinshop for order: ' . $order->no,
             //'timeout_express' => '30m'//alipay payment expires in 30 minutes
         ]);
 

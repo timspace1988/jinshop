@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'JiaShop-admin',
+    'name' => 'JinShop-admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>JiaShop</b> admin',
+    'logo' => '<b>JinShop</b> admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -85,7 +85,7 @@ return [
     | Html title for all pages.
     |
     */
-    'title' => 'JiaShop administration panel',
+    'title' => 'JinShop administration panel',
 
     /*
     |--------------------------------------------------------------------------

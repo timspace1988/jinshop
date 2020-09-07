@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- csrf token -->
-    <title>@yield('title', 'jiashop') - a creative online shop</title>
+    <title>@yield('title', 'jinshop') - a creative online shop</title>
     <!-- style -->
     <link rel="stylesheet" href="{{ mix('css/app.css') }}">
 </head>
