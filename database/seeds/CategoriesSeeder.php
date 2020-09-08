@@ -77,7 +77,7 @@ class CategoriesSeeder extends Seeder
             $category->parent()->associate($parent);
         }
         //save it to database
-        $category->save();
+        $category->save();//if we use ->create(), it will check against $fillable and unguarded, ->save will not
 
         //if this categotry has children entry, and children entry is an array, we need to call this function on each of its children entry, and also pass this category as $parent param to it
         if(isset($data['children']) && is_array($data['children'])){
