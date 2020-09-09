@@ -102,7 +102,7 @@ class ProductsController extends AdminController
         //add a toggle search selector for categories, similar to the selector in CategoriesController
         $form->select('category_id')->options(function($id){
             //the difference to selector in CategoriesController is:
-            //if the category already has data(e.g. when we edit an existing product), the current category info shold be defaultly displayed, that is why we should have ->options() here
+            //if the category field here already has data currently(e.g. when we edit an existing product), the current category info should be defaultly displayed, that is why we should have ->options() here, while in CategoriesController, parent field is not allowed editing aftet being created
             //another differentce is: we can only select a catetory which is not a directory for product, while in CategoriesControler, we select the parent, that means is_directory must be true
             //so we adjust the 'admin/api/categories' and apiIndex() in CategoriesController, to do different filtering depending on is_directory's value
             $category = Category::find($id);
