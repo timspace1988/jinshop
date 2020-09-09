@@ -10,6 +10,28 @@
                     <div class="form-row">
                         <div class="col-md-9">
                             <div class="form-row">
+                                <!-- Beginning of breacrumb for catetoies -->
+                                <div class="col-auto category-breadcrumb">
+                                    <!-- make it start with a link called 'All', which can get you directly to all-produts list  -->
+                                    <a href="{{ route('products.index') }}" class="all-products">All</a>
+                                    <span>&gt;</span>
+                                    <!-- if user reaches current page via choosing a specific category (means a possitive value of $category is passed) -->
+                                    @if($category)
+                                        <!-- traverse on current category's ancestors -->
+                                        @foreach($category->ancestors aS $ancestor)
+                                            <!-- add a link named with current ancestor'name -->
+                                            <span class="category">
+                                                <a href="{{ route('products.index', ['category_id' => $ancestor->id]) }}">{{ $ancestor->name }}</a>
+                                            </span>
+                                            <span>&gt;</span>
+                                        @endforeach
+                                        <!-- finally we add current category's name(not a link, because we currently on that page) to the end of the category breadcrumb -->
+                                        <span class="category">{{ $category->name }}</span><span></span>
+                                        <!-- a hidden input field for current category id, this will ensure the controller still get the current category id when customer change the sort -->
+                                        <input type="hidden" name="category_id" value="{{ $category->id }}">
+                                    @endif
+                                </div>
+                                <!-- end of breadcrums for categories -->
                                 <div class="col-auto"><input type="text" class="form-control form-control-sm" name="search" placeholder="Search here ..."></div>
                                 <div class="col-auto"><button class="btn btn-primary btn-sm">Search</button></div>
                             </div>
@@ -28,6 +50,25 @@
                     </div>
                 </form>
                 <!-- End of search and sort module -->
+
+                <!-- Beginning of displaying all children categories  -->
+                <div class="filters">
+                    <!-- if current category is a directory(parent directory) -->
+                    @if($category && $category->is_directory)
+                        <div class="row">
+                            <div class="col-3 filter-key">&nbsp;&nbsp;&nbsp;Shop by category: </div>
+                            <div class="col-9 filter-values">
+                                <!-- traverse on its children categories -->
+                                @foreach($category->children as $child)
+                                    <a href="{{ route('products.index', ['category_id' => $child->id]) }}">{{ $child->name }}</a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                <!-- End of displaying all children categories -->
+
+                <!-- Products list -->
                 <div class="row products-list">
                     @foreach($products as $product)
                         <div class="col-3 product-item">

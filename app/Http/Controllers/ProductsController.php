@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequestException;
+use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
 
@@ -30,6 +31,21 @@ class ProductsController extends Controller
             });
         }
 
+        //if catetory_id is passed, and there is a corresponding categories record in database
+        if($request->input('category_id') && $category = Category::find($request->input('category_id'))){
+            //if this is a parent category, we will get all its children's products
+            if($category->is_directory){
+                //whereHas(param1, function()), param1 is the name of an relationship attribute we gona query against, here it is Product model's categotry attribute 
+                $builder->whereHas('category', function($query) use ($category){//$builder, check the top lines of this class
+                    $query->where('path', 'like', $category->path.$category->id.'-%');
+                    //do a check on products' category attribute(related category object), filter for products with a condition on its related category's path attribute 
+                });
+            }else{
+                //if this is not a parent category, get all products under this category
+                $builder->where('category_id', $category->id);
+            }
+        }
+
         //Check if there is sorting parameter being selected by customer in 'order' field, if there is, assign value to $order
         if($order = $request->input('order', '')){
             //check if this sorting method ends with _asc or _desc
@@ -49,8 +65,10 @@ class ProductsController extends Controller
             'filters' =>[
                 'search' => $search, 
                 'order' => $order
-                ]
-            ]);
+            ],
+            'category' => $category ?? null, //this equals to isset($category) ? $category : null, when $category doesn't existm it will return null
+            //it is different from   $category ?: null,   when $category doesn't exist, php will report varible doesn't exist error
+        ]);
     }
 
     //show product details
