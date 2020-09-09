@@ -132,7 +132,8 @@ class CategoriesController extends AdminController
     public function apiIndex(Request $request){
         //retrieve user's search from input 'q'
         $search = $request->input('q');
-        $result = Category::query()->where('is_directory', true)//as we are searching for parent category, so we limit the searching pool to the ones having child
+        $result = Category::query()->where('is_directory', boolval($request->input('is_directory', true)))//we change the line underneath, beacause the is_directory value is passed via uri now (e.g. from ProductsController) the default value is still true
+                                   //->where('is_directory', true)//as we are searching for parent category, so we limit the searching pool to the ones having child
                                    ->where('name', 'like', '%'.$search.'%')//search categories for the one macthing the pattern
                                    ->paginate();//and display results in paginate, (we don't want to display all results in a long list)
         

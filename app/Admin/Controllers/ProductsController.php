@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -26,8 +27,15 @@ class ProductsController extends AdminController
     {
         $grid = new Grid(new Product());
 
+        //with will load the categories data from database, this will decrease the number of sqls
+        $grid->model()->with(['category']);
+
         $grid->column('id', __('Id'));
         $grid->column('title', __('Product name'));
+
+        //laravel-admin supports get relationship model's attribute using '.'
+        $grid->column('category.name', 'Category'); 
+
         // $grid->column('description', __('Description'));
         // $grid->column('image', __('Image'));
         $grid->column('on_sale', __('For sale'))->display(function ($value){
@@ -90,6 +98,19 @@ class ProductsController extends AdminController
         $form = new Form(new Product());
 
         $form->text('title', __('Product name'))->rules('required');
+
+        //add a toggle search selector for categories, similar to the selector in CategoriesController
+        $form->select('category_id')->options(function($id){
+            //the difference to selector in CategoriesController is:
+            //if the category already has data(e.g. when we edit an existing product), the current category info shold be defaultly displayed, that is why we should have ->options() here
+            //another differentce is: we can only select a catetory which is not a directory for product, while in CategoriesControler, we select the parent, that means is_directory must be true
+            //so we adjust the 'admin/api/categories' and apiIndex() in CategoriesController, to do different filtering depending on is_directory's value
+            $category = Category::find($id);
+            if($category){
+                return [$category->id => $category->full_name];//the data output to selector shold always be [id => value] format
+            }
+        })->ajax('/admin/api/categories?is_directory=0');
+
         //$form->textarea('description', __('Description'));
         $form->image('image', __('Cover photo'))->rules('required|image');
         $form->quill('description', __('Product description'))->rules('required');
