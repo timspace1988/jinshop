@@ -6,13 +6,14 @@ use App\Exceptions\InvalidRequestException;
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
-
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
     //products list
-    public function index(Request $request){
+    //public function index(Request $request, CategoryService $categoryService){
+    public function index(Request $request, CategoryService $categoryService){
         //create a $builder for all query on products for sale
         $builder = Product::query()->where('on_sale', true);
         
@@ -68,6 +69,10 @@ class ProductsController extends Controller
             ],
             'category' => $category ?? null, //this equals to isset($category) ? $category : null, when $category doesn't existm it will return null
             //it is different from   $category ?: null,   when $category doesn't exist, php will report varible doesn't exist error
+
+            //'categoryTree' => $categoryService->getCategoryTree(),//pass the catetory tree to front end page
+            //we don't need to pass 'categoryTree' from controller any more, because we have set it being passed automatically by laravel using a ViewComposer class '\App\Http\ViewComposers\CategoryTreeComposer'
+            //go check it '\App\Http\ViewComposers\CategoryTreeComposer'
         ]);
     }
 

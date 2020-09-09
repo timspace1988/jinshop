@@ -75,6 +75,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        //\View::composer(p1, p2)
+        //p1 is an array of templates which you want to use a particular ViewComposer class to pass varible to
+        //p2 is which ViewComposer class you specify to use
+        \View::composer(['products.index', 'products.show'], \App\Http\ViewComposers\CategoryTreeComposer::class);
+        //here laravel will call compose() method in '\App\Http\ViewComposers\CategoryTreeComposer' class to pass varible to these templates: 'products.index', 'products.show'
+        //it also supports using 'products.*' to execute the ViewComposer class on all templates under 'products' directory
+        //if a varible needs to be passed to a lot of front-end templages and we don't want pass it through controllers(because we need to do modification on all these controllers), this method could be a good choice
     }
 }

@@ -11,6 +11,19 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <!-- left side of navbar -->
             <ul class="navbar-nav mr-auto">
+                <!-- Beginning of category tree on top -->
+                <!-- firstly check if $categoryTree is passed here -->
+                @if(isset($categoryTree))
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="categoryTree">All categories <b class="caret"></b></a>
+                        <ul class="dropdown-menu" aria-labelledby="categoryTree">
+                            <!-- traverse the $categoryTree collection, pass each entry as $category varible to the template 'layouts._category_item', render it and display it here -->
+                            @each('layouts._category_item', $categoryTree, 'category')
+                            <!-- each(p1, p2, p3) p1: template name, p2: collection to traverse, p3: name of varible being passed as-->
+                        </ul>
+                    </li>
+                @endif
+                <!-- End of category tree -->
             </ul>
 
             <!-- right side of navbar -->
