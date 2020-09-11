@@ -8,8 +8,15 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
+    const TYPE_NORMAL = 'normal';
+    const TYPE_CROWDFUNDING = 'crowdfunding';
+    public static $typeMap = [
+        self::TYPE_NORMAL => 'Normal product',
+        self::TYPE_CROWDFUNDING => 'Crowdfunding product',
+    ];
+
     protected $fillable = [
-        'title', 'description', 'image', 'on_sale', 'rating', 'sold_count', 'review_count', 'price'
+        'title', 'description', 'image', 'on_sale', 'rating', 'sold_count', 'review_count', 'price', 'type',
     ];
 
     protected $cast = [
@@ -24,6 +31,11 @@ class Product extends Model
     //relationship with Category
     public function category(){
         return $this->belongsTo(Category::class);
+    }
+
+    //relationship with crowdfunding (CrowdfundingProduct)
+    public function crowdfunding(){
+        return $this->hasOne(CrowdfundingProduct::class);
     }
 
     //convert image attributes to its absolute path
