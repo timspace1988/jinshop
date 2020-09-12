@@ -28,7 +28,7 @@ class ProductsController extends AdminController
         $grid = new Grid(new Product());
 
         //with will load the categories data from database, this will decrease the number of sqls
-        $grid->model()->with(['category']);
+        $grid->model()->where('type', Product::TYPE_NORMAL)->with(['category']);
 
         $grid->column('id', __('Id'));
         $grid->column('title', __('Product name'));
@@ -96,6 +96,9 @@ class ProductsController extends AdminController
     protected function form()
     {
         $form = new Form(new Product());
+
+        //add a hidden field 'type' with value Product::TYPE_NORMAL
+        $form->hidden('type')->value(Product::TYPE_NORMAL);
 
         $form->text('title', __('Product name'))->rules('required');
 

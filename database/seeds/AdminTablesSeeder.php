@@ -25,7 +25,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 0,
-                    "order" => 7,
+                    "order" => 9,
                     "title" => "Admin",
                     "icon" => "fa-tasks",
                     "uri" => "",
@@ -33,7 +33,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 2,
-                    "order" => 8,
+                    "order" => 10,
                     "title" => "Admin users",
                     "icon" => "fa-users",
                     "uri" => "auth/users",
@@ -41,7 +41,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 2,
-                    "order" => 9,
+                    "order" => 11,
                     "title" => "Roles",
                     "icon" => "fa-user",
                     "uri" => "auth/roles",
@@ -49,7 +49,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 2,
-                    "order" => 10,
+                    "order" => 12,
                     "title" => "Permission",
                     "icon" => "fa-ban",
                     "uri" => "auth/permissions",
@@ -57,7 +57,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 2,
-                    "order" => 11,
+                    "order" => 13,
                     "title" => "Menu",
                     "icon" => "fa-bars",
                     "uri" => "auth/menu",
@@ -65,7 +65,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 2,
-                    "order" => 12,
+                    "order" => 14,
                     "title" => "Operation log",
                     "icon" => "fa-history",
                     "uri" => "auth/logs",
@@ -89,7 +89,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 0,
-                    "order" => 5,
+                    "order" => 7,
                     "title" => "Orders management",
                     "icon" => "fa-dollar",
                     "uri" => "/orders",
@@ -97,7 +97,7 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "parent_id" => 0,
-                    "order" => 6,
+                    "order" => 8,
                     "title" => "Coupons management",
                     "icon" => "fa-tags",
                     "uri" => "/coupon_codes",
@@ -109,6 +109,22 @@ class AdminTablesSeeder extends Seeder
                     "title" => "Categories management",
                     "icon" => "fa-bars",
                     "uri" => "/categories",
+                    "permission" => NULL
+                ],
+                [
+                    "parent_id" => 9,
+                    "order" => 6,
+                    "title" => "Crowdfunding products",
+                    "icon" => "fa-flag-checkered",
+                    "uri" => "/crowdfunding_products",
+                    "permission" => NULL
+                ],
+                [
+                    "parent_id" => 9,
+                    "order" => 5,
+                    "title" => "Normal products",
+                    "icon" => "fa-cubes",
+                    "uri" => "/products",
                     "permission" => NULL
                 ]
             ]

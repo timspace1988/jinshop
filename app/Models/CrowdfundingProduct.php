@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Encore\Admin\Traits\DefaultDatetimeFormat;
 
 class CrowdfundingProduct extends Model
 {
+    use DefaultDatetimeFormat;
+    
     //3 status of crowdfunding
     const STATUS_FUNDING = 'funding';
     const STATUS_SUCCESS = 'success';
