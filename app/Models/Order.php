@@ -21,6 +21,14 @@ class Order extends Model
     const SHIP_STATUS_DELIVERED = 'delivered';
     const SHIP_STATUS_RECEIVED = 'received';
 
+    const TYPE_NORMAL = 'normal';
+    const TYPE_CROWDFUNDING = 'crowdfunding';
+
+    public static $typeMap = [
+        self::TYPE_NORMAL => 'Normal product order',
+        self::TYPE_CROWDFUNDING => 'Crowdfunding product order',
+    ];
+
     public static $refundStatusMap = [
         self::REFUND_STATUS_PENDING => 'Pending',
         self::REFUND_STATUS_APPLIED => 'Applied for refund',
@@ -36,6 +44,7 @@ class Order extends Model
     ];
 
     protected $fillable = [
+        'type',
         'no',
         'address',
         'total_amount',

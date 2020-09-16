@@ -235,6 +235,11 @@ class OrdersController extends Controller
         //check if the order belongs to current user
         $this->authorize('own', $order);
 
+        //check if order's type is crowdfunding 
+        if($order->type === Order::TYPE_CROWDFUNDING){
+            throw new InvalidRequestException('Crowdfunding order can not be refunded.');
+        }
+
         //chefck if the order has been paid
         if(!$order->paid_at){
             throw new InvalidRequestException('This order is not paid yet.');

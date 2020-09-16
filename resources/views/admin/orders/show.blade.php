@@ -50,8 +50,14 @@
 
                 <!-- display the shipment form if order's ship status is pending-->
                 @if($order->ship_status === \App\Models\Order::SHIP_STATUS_PENDING)
-                    <!-- but we have an exception: if admin has approved refund, there will be no need to send shipment, it measn we don't need shipement form here, so we need to exclude that situation here -->
-                    @if($order->refund_status !== \App\Models\Order::REFUND_STATUS_SUCCESS)
+                    <!-- but we have an exception: 
+                         1. if admin has approved refund, 
+                            there will be no need to send shipment, it measn we don't need shipement form here, so we need to exclude that situation here 
+                         2. if the order type is crowdfunding and the status is not success 
+                            this means only successful crowdfunding product can be available for sending-->
+                    @if($order->refund_status !== \App\Models\Order::REFUND_STATUS_SUCCESS &&
+                        ($order->type !== \App\Models\Order::TYPE_CROWDFUNDING || $order->items[0]->product->crowdfunding->status === \App\Models\CrowdfundingProduct::STATUS_SUCCESS)
+                       )
                         <tr>
                             <td colspan="4">
                                 <form action="{{ route('admin.orders.ship', [$order->id]) }}" method="post" class="form-inline">

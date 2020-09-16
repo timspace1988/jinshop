@@ -14,7 +14,7 @@ use App\Models\CouponCode;
 
 class OrderService
 {
-    //Create an order
+    //Create an order for normal product
     public function store(User $user, UserAddress $address, $remark, $items, CouponCode $coupon = null){
         //if coupon code is passed and not null, we need to firstly check its availability, if doesn't pass, it will throw CouponCodeUnavailableException and go back to precious page before transcaton is executed
         //otherwise, if we leave it after we calculated the order amount, any breach of coupon requirment will end up with a transaction rollback, 
@@ -35,6 +35,7 @@ class OrderService
                     'zip' => $address->zip,
                     'contact_name' =>$address->contact_name,
                     'contact_phone' => $address->contact_phone,
+                    'type' => Order::TYPE_NORMAL,
                 ],
                 'remark' => $remark,
                 'total_amount' => 0, 
@@ -129,6 +130,7 @@ class OrderService
                     'zip' => $address->zip,
                     'contact_name' => $address->contact_name,
                     'contact_phone' => $address->contact_phone,
+                    'type' => Order::TYPE_CROWDFUNDING,
                 ],
                 'remark' => '',
                 'total_amount' => $sku->price * $amount,
@@ -138,7 +140,7 @@ class OrderService
             //save the order we just created into database
             $order->save();
 
-            //For this application, we designed it be like one order only having one crowdfunding product, that means this order only has one order item
+            //For this application, we designed it be like one order only having one single crowdfunding product(could be with multiple quantiyt), that means this order only has one order item
             //now we create the order item and associate it with the product and the sku
             $item = $order->items()->make([
                 'amount' => $amount,

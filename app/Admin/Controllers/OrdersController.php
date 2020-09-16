@@ -6,6 +6,7 @@ use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Admin\HandleRefundRequest;
 use App\Http\Requests\Request;
+use App\Models\CrowdfundingProduct;
 use App\Models\Order;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -102,7 +103,11 @@ class OrdersController extends AdminController
         if($order->ship_status !== Order::SHIP_STATUS_PENDING){
             throw new InvalidRequestException('The items of order have been shipped.');
         }
-        //after laravel 5.5 validate method can return the data just being validate
+        //crowdfunding order can only be sent ater the crowdfunding is successful
+        if($order->type === Order::TYPE_CROWDFUNDING && $order->items[0]->product->crowdfunding->status !== CrowdfundingProduct::STATUS_SUCCESS){
+            throw new InvalidRequestException('Crowdfunding order can only be sent after it was successful.');
+        }
+        //after laravel 5.5 validate method can return the data which just being validate
         $data = $this->validate($request,
                     [
                         'express_company' => ['required'],
