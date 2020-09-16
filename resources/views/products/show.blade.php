@@ -12,12 +12,48 @@
                     </div>
                     <div class="col-7">
                         <div class="title">{{ $product->title }}</div>
-                        <div class="price"><label>Price</label><em>$</em><span>{{ $product->price }}</span></div>
-                        <div class="sales_and_reviews">
-                            <div class="sold_count">Sold <span class="count">{{ $product->sold_count }}</span></div>
-                            <div class="review_count">Reviews <span class="count">{{ $product->review_count }}</span></div>
-                            <div class="rating" title="Rate {{ $product->rating }}">Rate <span class="count">{{ str_repeat('★', floor($product->rating)) }}{{ str_repeat('☆',5 - floor($product->rating)) }}</span></div>
-                        </div>
+                        <!-- start of crowdfunding product module -->
+                        @if($product->type === \App\Models\Product::TYPE_CROWDFUNDING)
+                            <div class="crowdfunding-info">
+                                <div class="have-text">Current amount: </div>
+                                <div class="total-amount"><span class="symbol">$ </span>{{ $product->crowdfunding->total_amount }}</div>
+                                <!-- bootstrap's progress bar module -->
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-success progress-bar-striped" 
+                                        role="progressbar" 
+                                        aria-valuenow="{{ $product->crowdfunding->percent }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100" 
+                                        style="min-width: 1em; width: {{ min($product->percent, 100) }} %">
+                                    </div>
+                                </div>
+                                <div class="progress-info">
+                                    <span class="current-progress">Current progress: {{ $product->crowdfunding->percent }} %</span>
+                                    <span class="float-right user-count">Supported by {{ $product->crowdfunding->user_count }} people</span>
+                                </div>
+                                <!-- if this product is still in funding status, we display the prompt info -->
+                                @if($product->crowdfunding->status === \App\Models\CrowdfundingProduct::STATUS_FUNDING)
+                                    <div>This product need to collect 
+                                         <span class="text-red">$ {{ $product->crowdfunding->target_amount }}</span>
+                                         before
+                                         <span class="text-red">{{ $product->crowdfunding->end_at->format('d-m-Y  H:i:s')}}</span><br>
+                                         Crowdfunding will end in 
+                                         <span class="text-red">{{ $product->crowdfunding->end_at->diffForHumans(now()) }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        <!-- end of crowdfunding module -->
+                        @else
+                        <!-- start of normal product module -->
+                            <div class="price"><label>Price</label><em>$</em><span>{{ $product->price }}</span></div>
+                            <div class="sales_and_reviews">
+                                <div class="sold_count">Sold <span class="count">{{ $product->sold_count }}</span></div>
+                                <div class="review_count">Reviews <span class="count">{{ $product->review_count }}</span></div>
+                                <div class="rating" title="Rate {{ $product->rating }}">Rate <span class="count">{{ str_repeat('★', floor($product->rating)) }}{{ str_repeat('☆',5 - floor($product->rating)) }}</span></div>
+                            </div>
+                        <!-- end of normal product module -->
+                        @endif    
+
                         <div class="skus">
                             <label>Select</label>
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -35,7 +71,30 @@
                             @else
                                 <button class="btn btn-success btn-favor">❤  Save</button>
                             @endif
-                            <button class="btn btn-primary btn-add-to-cart">Add to cart</button>
+                            <!-- Crowdfunding product placing order button -->
+                            @if($product->type === \App\Models\Product::TYPE_CROWDFUNDING)
+                                <!-- check if user is logged in -->
+                                @if(Auth::check())
+                                    <!-- if still in funding status, display the Join button -->
+                                    @if($product->crowdfunding->status === \App\Models\CrowdfundingProduct::STATUS_FUNDING)
+                                      <button class="btn btn-primary btn-crowdfunding">Join</button>
+                                    @else
+                                    <!-- if not in funding status, display the satus info -->
+                                      <button class="btn btn-primary disabled">
+                                          {{ \App\Models\CrowdfundingProduct::$statusMap[$product->crowdfunding->status] }}
+                                      </button>
+                                    @endif
+                                @else
+                                <!-- if have not logged in, display the Sign in button -->
+                                    <a href="{{ route('login') }}" class="btn btn-primary">Sign in to join</a>
+                                @endif
+                            <!-- end of crowdfunding product placing ordr buttton -->
+                            @else
+                            <!-- Normal product add to cart button -->
+                                <button class="btn btn-primary btn-add-to-cart">Add to cart</button>
+                            <!-- end of normal product add to cart button -->
+                            @endif
+                            
                         </div>
                     </div>
                 </div>
@@ -172,6 +231,93 @@
                         }
                     }
                 );
+        });
+
+        //Listening on Join crowdfunding button
+        $('.btn-crowdfunding').click(function(){
+            //check if use has chosen a SKU
+            if(!$('label.active input[name=skus]').val()){
+                swal('Please select a product.');
+                return;
+            }
+            //get and put user's addressese into a json type data, and assign it to addresses varible,
+            var addresses = {!! json_encode(Auth::check() ? Auth::user()->addresses : []) !!};
+
+            //create a form using jquery
+            var $form = $('<form></form>');//you both $form and form, we usually use $ to indicate this is a jquery element
+
+            //add a toggle selector for addresses to the form
+            $form.append('<div class="form-group row">' + 
+                            '<label class="col-form-label col-sm-3">Select an address</label>' + 
+                            '<div class="col-sm-9">' +
+                                '<select class="custom-select" name="address_id"></select>' + 
+                            '</div>' + 
+                         '</div>');
+
+            //traverse on each address, and put them into the address selector
+            addresses.forEach(function (address) {
+                $form.find('select[name=address_id]')
+                     .append("<option value='" + address.id + "'>" +
+                                address.full_address + ' ' + address.contact_name + ' ' + address.contact_phone +
+                             '</option>');
+            });
+
+            //add an input field for purchase number
+            $form.append('<div class="form-group row">' +
+                            '<label class="col-form-label col-sm-3">Quantity</label>' +
+                            '<div class="col-sm-9"><input class="form-control" name="amount"></div>' +
+                         '</div>');
+            
+            //When preaparation is done, call SweetAlert to pop out a window with the form we just created
+            swal({
+                text: 'Join the crowdfunding',
+                content: $form[0],
+                buttons: ['Cancel', 'Confirm']
+            }).then(function(ret){
+                //until clicking the confirm button, no continuous operation will be executed
+                if(!ret){
+                    return;
+                }
+
+                //build up the request
+                var req = {
+                    address_id: $form.find('select[name=address_id]').val(),
+                    amount: $form.find('input[name=amount]').val(),
+                    sku_id: $('label.active input[name=skus]').val()
+                };
+
+                //call interface of placing crowdfunding order
+                axios.post('{{ route("crowdfunding_orders.store") }}', req)
+                     .then(function(response){
+                         //console.log(response);
+                         //alert(response.data.msg);
+
+                         //if order being placed successfully, redirect to order details page
+                         swal('Your order has been placed', '', 'success')
+                            .then(() => {
+                                location.href = '/orders/' + response.data.id;
+                            });
+                     },
+                     function(error){
+                         //if the input does not pass the validation, show reasons
+                         if(error.response.status === 422){
+                             var html = '<div>';
+                             _.each(error.response.data.errors, function(errors){
+                                 _.each(errors, function(error){
+                                     html += error + '<br>';
+                                 });
+                             });
+                             html += '</div>';
+                             swal({content: $(html)[0], icon: 'error'});
+                         }else if(error.response.status === 403){
+                             swal(error.response.data.msg, '', 'error');
+                         }else{
+                             //console.log(error.response.data.msg);
+                             swal('System error', '', 'error');
+                         }
+                     });
+            });
+
         });
     });
 </script>

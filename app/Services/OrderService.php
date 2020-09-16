@@ -114,4 +114,56 @@ class OrderService
         
         return $order;
     }
+
+    //create an order for crowdfunding product
+    public function crowdfunding(User $user, UserAddress $address, ProductSku $sku, $amount){
+        //we implement the placing order logic in a transaction
+        $order = \DB::transaction(function() use($amount, $sku, $user, $address){
+            //update this address's last used at time
+            $address->update(['last_used_at' => Carbon::now()]);
+
+            //create an order
+            $order = new Order([
+                'address' => [
+                    'address' => $address->full_address,
+                    'zip' => $address->zip,
+                    'contact_name' => $address->contact_name,
+                    'contact_phone' => $address->contact_phone,
+                ],
+                'remark' => '',
+                'total_amount' => $sku->price * $amount,
+            ]);
+            //associate the order to current user
+            $order->user()->associate($user);
+            //save the order we just created into database
+            $order->save();
+
+            //For this application, we designed it be like one order only having one crowdfunding product, that means this order only has one order item
+            //now we create the order item and associate it with the product and the sku
+            $item = $order->items()->make([
+                'amount' => $amount,
+                'price' => $sku->price,
+            ]);
+            //associate the order item with product
+            $item->product()->associate($sku->product_id);//associate(param), param could be a model object or its id
+            //associate the order item with its sku
+            $item->productSku()->associate($sku);
+            //save the order item to the database
+            $item->save();
+            //deduct the amount from the stock on that sku
+            if($sku->decreaseStock($amount) <=0){
+                throw new InvalidRequestException('This product does not have enough stock');
+            }
+
+            return $order;
+        });
+
+        //when order is created successfully, we need to dispatch the CloseOrder job
+        //calculate the left time by crowdfunding expire time mincing current time
+        $crowdfundingTtl = $sku->product->crowdfunding->end_at->getTimestamp() - time();
+        //compare the crowdfundingTil value and the default order closure time, choose the smaller one and set it as the CloseOrder job's closure time
+        dispatch(new CloseOrder($order, min(config('app.order_ttl'), $crowdfundingTtl)));
+
+        return $order;
+    } 
 }

@@ -33,7 +33,7 @@ class CrowdfundingProduct extends Model
     //create a simuliated percent attribute
     public function getPercentAttribute(){
         //current total amount divided by target amount
-        $value = $this->attributes['toal_amount'] / $this->attributes['target_amount'];//$this->attributes['xxx'] is same with $this->xxx in this project, check the benifit of using ->attributes[] on google
+        $value = $this->attributes['total_amount'] / $this->attributes['target_amount'];//$this->attributes['xxx'] is same with $this->xxx in this project, check the benifit of using ->attributes[] on google
 
         return floatval(number_format($value * 100, 2, '.', ''));
     }
