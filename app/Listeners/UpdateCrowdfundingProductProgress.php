@@ -7,17 +7,17 @@ use App\Models\Order;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class UpdateCrowdfundingProductProgress
+class UpdateCrowdfundingProductProgress implements ShouldQueue
 {
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct()
-    {
-        //
-    }
+    // public function __construct()
+    // {
+    //     //
+    // }
 
     /**
      * Handle the event.
@@ -48,5 +48,11 @@ class UpdateCrowdfundingProductProgress
                                   //get the number of people who have supported(joined) the crowdfunding, as user can place multiple orders, we need to exclude the dupilicated users(just count them once)
                                   \DB::raw('count(distinct(user_id)) as user_count'),
                               ]);
+        
+        //update this crowdfunding product's total amount and number of supporting user
+        $crowdfunding->update([
+            'total_amount' => $data->total_amount,
+            'user_count' => $data->user_count,
+        ]);
     }
 }

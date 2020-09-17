@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'ngrok_url' => env('NGROK_URL'),
     /*
     waiting time for CloseOrder job, the time unit is second
     */

@@ -52,3 +52,15 @@ function get_redis_config(){
         ];
     }
 }
+
+//get ngrok url, this url is a forwarding url which help the web(e.g. alipay callback) visit our page on homestead (we use this for development)
+function ngrok_url($routeName, $parameters = []){
+    //if we are in develop environment, and have set up the configuration for NGROK_URL in config/app.php file 
+    if(app()->environment('local') && $url = config('app.ngrok_url')){
+        //the 3rd param in route() stands for if it is absolute path
+        return $url . route($routeName, $parameters, false);
+    }
+
+    //in other cases, just return the normal url
+    return route($routeName, $parameters);
+}

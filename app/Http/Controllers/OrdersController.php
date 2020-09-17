@@ -130,7 +130,8 @@ class OrdersController extends Controller
         $address = UserAddress::find($request->input('address_id'));
         $amount = $request->input('amount');
 
-        // return $orderService->crowdfunding($user, $address, $sku, $amount);
+        return $orderService->crowdfunding($user, $address, $sku, $amount);
+        
         // }catch(\Throwable $t){
         //     return ['msg' => $t->getMessage()];
         // }

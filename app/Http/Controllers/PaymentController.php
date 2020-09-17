@@ -45,7 +45,7 @@ class PaymentController extends Controller
             return view('pages.error', ['msg' => 'Data returned by alipay does not pass verification，but payment might be successful.']);
         }
         
-        return view('pages.success', ['msg' => 'You have made a payment successfully']);
+        return view('pages.success', ['msg' => 'You have made a successful payment.']);
         //return redirect(route('orders.index'));
     }
 
