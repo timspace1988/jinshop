@@ -149,14 +149,15 @@ class OrdersController extends Controller
 
     //order details page
     public function show(Order $order, Request $request){
-        dd("hello");
+        //dd("hello");
         try{
         //Only order's owner can see his order's details
         $this->authorize('own', $order);
-        return view('orders.show', ['order' => $order->load(['items.product', 'items.productSku'])]);
+        $v = view('orders.show', ['order' => $order->load(['items.product', 'items.productSku'])]);
         }catch(\Throwable $t){
             dd($t);
         }
+        return $v;
     }
 
     //cusotomer get order received
