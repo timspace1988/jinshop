@@ -149,6 +149,7 @@ class OrdersController extends Controller
 
     //order details page
     public function show(Order $order, Request $request){
+        dd("hello");
         try{
         //Only order's owner can see his order's details
         $this->authorize('own', $order);
