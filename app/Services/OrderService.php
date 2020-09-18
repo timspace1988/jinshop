@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\CouponCodeUnavailableException;
+use App\Exceptions\InternalException;
 use App\Models\Order;
 use App\Models\UserAddress;
 use App\Models\User;

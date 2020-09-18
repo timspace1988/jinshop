@@ -16,7 +16,7 @@ class FinishCrowdfunding extends Command
      *
      * @var string
      */
-    protected $signature = 'cron:finsh-crowdfunding';
+    protected $signature = 'cron:finish-crowdfunding';
 
     /**
      * The console command description.
@@ -73,7 +73,7 @@ class FinishCrowdfunding extends Command
             'status' => CrowdfundingProduct::STATUS_FAIL
         ]);
 
-        $orderService = app(OrderService::class);
+        //$orderService = app(OrderService::class);
 
         //refund involves interacton with alipay server, it gonna take a long time to refund so manay orders(real crowdfunding usaually invloves thousands orders, we cannot let it executed one by one)
         //we we execute the crowdfunding-orders refunding logic in queue job

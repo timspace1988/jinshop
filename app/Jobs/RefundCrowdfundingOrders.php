@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\CrowdfundingProduct;
 use App\Models\Order;
+use App\Services\OrderService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -46,7 +47,7 @@ class RefundCrowdfundingOrders implements ShouldQueue
         $orderService = app(OrderService::class);
         //find and get all orders related to this filed crowdfunding, and execute the refund logic
         Order::query()->where('type', Order::TYPE_CROWDFUNDING)//filter for crowdfunding type
-                      ->whereNotNull('paid')//filter for those already been paid
+                      ->whereNotNull('paid_at')//filter for those already been paid
                       ->whereHas('items', function($query){
                           //filter for orders with current crowdfunding product
                           $query->where('product_id', $this->crowdfunding->product_id);
