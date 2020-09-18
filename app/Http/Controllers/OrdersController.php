@@ -154,6 +154,7 @@ class OrdersController extends Controller
         //Only order's owner can see his order's details
         $this->authorize('own', $order);
         $v = view('orders.show', ['order' => $order->load(['items.product', 'items.productSku'])]);
+        throw new InvalidRequestException('test');
         }catch(\Throwable $t){
             dd($t);
         }
