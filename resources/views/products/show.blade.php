@@ -37,7 +37,7 @@
                                          <span class="text-red">$ {{ $product->crowdfunding->target_amount }}</span>
                                          before
                                          <span class="text-red">{{ $product->crowdfunding->end_at->format('d-m-Y  H:i:s')}}</span><br>
-                                         Crowdfunding will end in 
+                                         Crowdfunding ends  
                                          <span class="text-red">{{ $product->crowdfunding->end_at->diffForHumans(now()) }}</span>
                                     </div>
                                 @endif
