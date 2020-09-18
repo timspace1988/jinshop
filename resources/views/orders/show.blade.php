@@ -62,7 +62,7 @@
                             </div>
                         @endif
                         <!-- If order is paid and refund status is not peding, display refund info -->
-                        @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
+                        <!-- @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
                             <div class="line">
                                 <div class="line-label">Refund :&nbsp;</div>
                                 <div class="line-value">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}</div>
@@ -71,7 +71,7 @@
                                 <div class="line-label">Reason :&nbsp;</div>
                                 <div class="line-value">{{ $order->extra['refund_reason'] }}</div>
                             </div>
-                        @endif
+                        @endif -->
                     </div>
                     <div class="order-summary text-right">
                         <!-- display coupon info -->
