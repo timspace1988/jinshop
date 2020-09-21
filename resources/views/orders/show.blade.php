@@ -89,7 +89,7 @@
                         <div>
                             <span>Order status: </span>
                             <div class="value">
-                                @if($order->paid_at)
+                                <!-- @if($order->paid_at)
                                     @if($order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
                                         Paid
                                     @else
@@ -99,7 +99,7 @@
                                     Closed
                                 @else
                                     Not paid
-                                @endif
+                                @endif -->
                             </div>
                         </div>
                         <!-- if refund aplication is declined, display the disagree reason -->
