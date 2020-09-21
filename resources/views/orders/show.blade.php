@@ -103,12 +103,12 @@
                             </div>
                         </div>
                         <!-- if refund aplication is declined, display the disagree reason -->
-                        @if(isset($order->extra['refund_disagree_reason']))
+                        <!-- @if(isset($order->extra['refund_disagree_reason']))
                             <div>
                                 <span>Refund declined: </span>
                                 <div class="value">{{ $order->extra['refund_disagree_reason'] }}</div>
                             </div>
-                        @endif
+                        @endif -->
                         <!-- pay button -->
                         @if(!$order->paid_at && !$order->closed)
                         <div class="payment_buttons">
