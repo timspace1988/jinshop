@@ -128,14 +128,14 @@
                             </div>
                         @endif
                         <!-- if order is paid and refund status is pending and is not crowdfunding order, then display apply for refund button -->
-                        @if($order->type !== \App\Models\Order::TYPE_CROWDFUNDING && 
+                        <!-- @if($order->type !== \App\Models\Order::TYPE_CROWDFUNDING && 
                             $order->paid_at && 
                             $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
                             
                             <div class="refund-button">
                                 <button class="btn btn-sm btn-danger" id="btn-apply-refund">Apply for refund</button>
                             </div>
-                        @endif
+                        @endif -->
                     </div>
                 </div>
             </div>
