@@ -118,15 +118,7 @@
                         <!-- finish pay button -->
 
                         <!-- if order status is in-delivery(this project mark this status with delivered), display the received button -->
-                        @if($order->ship_status ===\App\Models\Order::SHIP_STATUS_DELIVERED)
-                            <div class="receive-button">
-                                <form action="{{ route('orders.received', [$order->id]) }}" method="post">
-                                    <!-- csrf token -->
-                                    {{ csrf_field() }}
-                                    <button type="button" id="btn-receive" class="btn btn-sm btn-success">Click to receive</button>
-                                </form>
-                            </div>
-                        @endif
+                        
                         <!-- if order is paid and refund status is pending and is not crowdfunding order, then display apply for refund button -->
                         <!-- @if($order->type !== \App\Models\Order::TYPE_CROWDFUNDING && 
                             $order->paid_at && 
