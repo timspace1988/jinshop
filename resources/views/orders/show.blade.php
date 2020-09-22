@@ -40,41 +40,7 @@
                     @endforeach
                     <tr><td colspan="4"></td></tr>
                 </table>
-                <div class="order-bottom">
-                    <div class="order-info">
-                        <div class="line"><div class="line-label">Address :&nbsp;</div><div class="line-value">{{ join(' ', $order->address) }}</div></div>
-                        <div class="line"><div class="line-label">Remark :&nbsp;</div><div class="line-value">{{ $order->remark ?: '-'  }}</div></div>
-                        <div class="line"><div class="line-label">Order no :&nbsp;</div><div class="line-value">{{ $order->no }}</div></div> 
-                        <!-- Shipping status -->
-                        <div class="line">
-                            <div class="line-label">Shippment :&nbsp;</div>
-                            <div class="line-value">{{ \App\Models\Order::$shipStatusMap[$order->ship_status] }}</div>
-                        </div>
-                        <!-- If the order has got shipment data, display it -->
-                        @if($order->ship_data)
-                            <div class="line">
-                                <div class="line-label">Courier :&nbsp;</div>
-                                <div class="line-value">{{ $order->ship_data['express_company'] }}</div>
-                            </div>
-                            <div class="line">
-                                <div class="line-label">Shipment no :&nbsp;</div>
-                                <div class="line-value">{{ $order->ship_data['express_no'] }}</div>
-                            </div>
-                        @endif
-                        <!-- If order is paid and refund status is not peding, display refund info -->
-                        @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
-                            <div class="line">
-                                <div class="line-label">Refund :&nbsp;</div>
-                                <div class="line-value">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}</div>
-                            </div>
-                            <div class="line">
-                                <div class="line-label">Reason :&nbsp;</div>
-                                <div class="line-value">{{ $order->extra['refund_reason'] }}</div>
-                            </div>
-                        @endif
-                    </div>
-                    
-                </div>
+                
             </div>
         </div>
     </div>
