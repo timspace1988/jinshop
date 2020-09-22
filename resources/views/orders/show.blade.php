@@ -69,7 +69,7 @@
                             </div>
                             <div class="line">
                                 <div class="line-label">Reason :&nbsp;</div>
-                                
+                                <div class="line-value">{{ $order->extra['refund_reason'] ?: '-' }}</div>
                             </div>
                         @endif
                     </div>
