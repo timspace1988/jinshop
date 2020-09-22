@@ -40,7 +40,73 @@
                     @endforeach
                     <tr><td colspan="4"></td></tr>
                 </table>
-                
+                <div class="order-bottom">
+                    
+                    <div class="order-summary text-right">
+                        <!-- display coupon info -->
+                        @if($order->couponCode)
+                        <div class="text-primary">
+                            <span>Discount with coupon applied: </span>
+                            <div class="value">{{ $order->couponCode->description }}</div>
+                        </div>
+                        @endif
+                        <!-- end of display coupon info -->
+                        <div class="total-amount">
+                            <span>Total amount: </span>
+                            <div class="value">${{ $order->total_amount }}</div>
+                        </div>
+                        <div>
+                            <span>Order status: </span>
+                            <div class="value">
+                                @if($order->paid_at)
+                                    @if($order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
+                                        Paid
+                                    @else
+                                        {{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}
+                                    @endif
+                                @elseif($order->closed)
+                                    Closed
+                                @else
+                                    Not paid
+                                @endif
+                            </div>
+                        </div>
+                        <!-- if refund aplication is declined, display the disagree reason -->
+                        @if(isset($order->extra['refund_disagree_reason']))
+                            <div>
+                                <span>Refund declined: </span>
+                                <div class="value">{{ $order->extra['refund_disagree_reason'] }}</div>
+                            </div>
+                        @endif
+                        <!-- pay button -->
+                        @if(!$order->paid_at && !$order->closed)
+                        <div class="payment_buttons">
+                            <a href="{{ route('payment.alipay', ['order' => $order->id]) }}" class="btn btn-primary btn-sm">AliPay/支付宝</a>
+                        </div>
+                        @endif
+                        <!-- finish pay button -->
+
+                        <!-- if order status is in-delivery(this project mark this status with delivered), display the received button -->
+                        @if($order->ship_status ===\App\Models\Order::SHIP_STATUS_DELIVERED)
+                            <div class="receive-button">
+                                <form action="{{ route('orders.received', [$order->id]) }}" method="post">
+                                    <!-- csrf token -->
+                                    {{ csrf_field() }}
+                                    <button type="button" id="btn-receive" class="btn btn-sm btn-success">Click to receive</button>
+                                </form>
+                            </div>
+                        @endif
+                        <!-- if order is paid and refund status is pending and is not crowdfunding order, then display apply for refund button -->
+                        @if($order->type !== \App\Models\Order::TYPE_CROWDFUNDING && 
+                            $order->paid_at && 
+                            $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
+                            
+                            <div class="refund-button">
+                                <button class="btn btn-sm btn-danger" id="btn-apply-refund">Apply for refund</button>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>
