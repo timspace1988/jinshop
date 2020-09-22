@@ -45,6 +45,12 @@
                         <div class="line"><div class="line-label">Address :&nbsp;</div><div class="line-value">{{ join(' ', $order->address) }}</div></div>
                         <div class="line"><div class="line-label">Remark :&nbsp;</div><div class="line-value">{{ $order->remark ?: '-'  }}</div></div>
                         <div class="line"><div class="line-label">Order no :&nbsp;</div><div class="line-value">{{ $order->no }}</div></div> 
+                        <!-- Shipping status -->
+                        <div class="line">
+                            <div class="line-label">Shippment :&nbsp;</div>
+                            <div class="line-value">{{ \App\Models\Order::$shipStatusMap[$order->ship_status] }}</div>
+                        </div>
+                        <!-- If the order has got shipment data, display it -->
                         
                     </div>
                     <div class="order-summary text-right">
