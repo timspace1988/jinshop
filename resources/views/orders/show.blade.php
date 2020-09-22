@@ -75,12 +75,12 @@
                     </div>
                     <div class="order-summary text-right">
                         <!-- display coupon info -->
-                        @if($order->couponCode)
+                        <!-- @if($order->couponCode)
                         <div class="text-primary">
                             <span>Discount with coupon applied: </span>
                             <div class="value">{{ $order->couponCode->description }}</div>
                         </div>
-                        @endif
+                        @endif -->
                         <!-- end of display coupon info -->
                         <div class="total-amount">
                             <span>Total amount: </span>
@@ -110,11 +110,11 @@
                             </div>
                         @endif -->
                         <!-- pay button -->
-                        @if(!$order->paid_at && !$order->closed)
+                        <!-- @if(!$order->paid_at && !$order->closed)
                         <div class="payment_buttons">
                             <a href="{{ route('payment.alipay', ['order' => $order->id]) }}" class="btn btn-primary btn-sm">AliPay/支付宝</a>
                         </div>
-                        @endif
+                        @endif -->
                         <!-- finish pay button -->
 
                         <!-- if order status is in-delivery(this project mark this status with delivered), display the received button -->
