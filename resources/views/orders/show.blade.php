@@ -41,7 +41,12 @@
                     <tr><td colspan="4"></td></tr>
                 </table>
                 <div class="order-bottom">
-                    
+                    <div class="order-info">
+                        <div class="line"><div class="line-label">Address :&nbsp;</div><div class="line-value">{{ join(' ', $order->address) }}</div></div>
+                        <div class="line"><div class="line-label">Remark :&nbsp;</div><div class="line-value">{{ $order->remark ?: '-'  }}</div></div>
+                        <div class="line"><div class="line-label">Order no :&nbsp;</div><div class="line-value">{{ $order->no }}</div></div> 
+                        
+                    </div>
                     <div class="order-summary text-right">
                         <!-- display coupon info -->
                         @if($order->couponCode)
