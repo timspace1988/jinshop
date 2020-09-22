@@ -51,7 +51,7 @@
                             <div class="line-value">{{ \App\Models\Order::$shipStatusMap[$order->ship_status] }}</div>
                         </div>
                         <!-- If the order has got shipment data, display it -->
-                        @if($order->ship_data)
+                        <!-- @if($order->ship_data)
                             <div class="line">
                                 <div class="line-label">Courier :&nbsp;</div>
                                 <div class="line-value">{{ $order->ship_data['express_company'] }}</div>
@@ -60,7 +60,7 @@
                                 <div class="line-label">Shipment no :&nbsp;</div>
                                 <div class="line-value">{{ $order->ship_data['express_no'] }}</div>
                             </div>
-                        @endif
+                        @endif -->
                         <!-- If order is paid and refund status is not peding, display refund info -->
                         <!-- @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
                             <div class="line">
