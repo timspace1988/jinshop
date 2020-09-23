@@ -64,3 +64,8 @@ function ngrok_url($routeName, $parameters = []){
     //in other cases, just return the normal url
     return route($routeName, $parameters);
 }
+
+//Create a BigNumber for decimal calculation, default precision scale is 2
+function big_number($number, $scale = 2){
+    return new \Moontoast\Math\BigNumber($number, $scale);
+}
