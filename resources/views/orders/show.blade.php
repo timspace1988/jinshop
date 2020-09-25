@@ -111,9 +111,15 @@
                         @endif
                         <!-- pay button -->
                         @if(!$order->paid_at && !$order->closed)
-                        <div class="payment_buttons">
-                            <a href="{{ route('payment.alipay', ['order' => $order->id]) }}" class="btn btn-primary btn-sm">AliPay/支付宝</a>
-                        </div>
+                            <div class="payment_buttons">
+                                <a href="{{ route('payment.alipay', ['order' => $order->id]) }}" class="btn btn-primary btn-sm">AliPay/支付宝</a>
+                                <!-- start of installment pay button -->
+                                <!-- only display the button when order total amount is greater than or equals to minimum installment amount -->
+                                @if($order->total_amount >=config('app.min_installment_amount'))
+                                    <button class="btn btn-sm btn-danger" id="btn-installment">Installment</button>
+                                @endif
+                                <!-- end of installment pay button -->
+                            </div>
                         @endif
                         <!-- finish pay button -->
 
@@ -142,6 +148,46 @@
         </div>
     </div>
 </div>
+
+<!-- start of instalment-plan pop-up window -->
+<div class="modal feade" id="installment-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Choose an installment plan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">x</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-borded table-striped text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Phases</th>
+                            <th class="text-center">Fee rate</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(config('app.installment_fee_rate') as $count => $rate)
+                            <tr>
+                                <td>{{ $count }} phases</td>
+                                <td>{{ $rate }} %</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary btn-select-installment" data-count="{{ $count }}">Select</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end of installment-plan pop-up window -->
 @endsection
 
 @section('scriptsAfterJs')
@@ -191,6 +237,25 @@
                          });
                      });
             });
+        });
+
+
+        //click on installment button
+        $('#btn-installment').click(function(){
+            //display the pop-up window for installment plan
+            $('#installment-modal').modal();
+        });
+
+        //click on installment phases select button
+        $('.btn-select-installment').click(function(){
+            //alert();
+            //call creating-installment interface
+            axios.post('{{ route("payment.installment", ["order" => $order->id]) }}', {count : $(this).data('count')})//second param in .post() is data to be send, retrieve it from controller using $request->input('xxx')
+                 .then(function(response){
+                     //alert();
+                     console.log(response.data);
+                     // todo redirect to installment payment page
+                 });
         });
     });
 </script>

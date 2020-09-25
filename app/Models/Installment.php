@@ -24,7 +24,7 @@ class Installment extends Model
         static::creating(function($model){
             //if 'no' field is null, generate it
             if(!$model->no){
-                $model->no = static::findAvailabelNo();
+                $model->no = static::findAvailableNo();
                 //if we failed to generate a 'no', terminate the creating of installment model
                 if(!$model->no){
                     return false;

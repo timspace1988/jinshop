@@ -64,7 +64,7 @@ class Order extends Model
     protected $casts = [
         'closed' => 'boolean',
         'reviewed' => 'boolean',
-        'address' => 'json',//Automatically convert it to json type when saving into database
+        'address' => 'json',//Automatically convert it to json type when accessing it (retrieve it from database) on your model
         'ship_data' => 'json',
         'extra' => 'json',
     ];

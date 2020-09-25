@@ -4,6 +4,9 @@
 // }
 
 //Convert route name from xx.yy to xx-yy
+
+//use App\Models\InstallmentRate;
+
 function route_class(){
     return str_replace('.', '-', Route::currentRouteName());
 }
@@ -68,4 +71,26 @@ function ngrok_url($routeName, $parameters = []){
 //Create a BigNumber for decimal calculation, default precision scale is 2
 function big_number($number, $scale = 2){
     return new \Moontoast\Math\BigNumber($number, $scale);
+}
+
+//get installment rates, fee and fine
+//we set the config in app service provider, check the boot function there
+function get_installment_rates(){
+    if($installment = App\Models\InstallmentRate::query()->first()){
+        return [
+            'installment_fee_rate' => $installment->installment_fee_rate,
+            'min_installment_amount' => $installment->min_installment_amount,
+            'installment_fine_rate' => $installment->installment_fine_rate,
+        ];
+    }else{
+        return [
+            'installment_fee_rate' => [
+                3 => 1.5,
+                6 => 2,
+                12 => 2.5
+            ],
+            'min_installment_amount' => 300,
+            'installment_fine_rate' => 0.05,
+        ];
+    }    
 }

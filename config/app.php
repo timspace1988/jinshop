@@ -1,5 +1,7 @@
 <?php
 
+//$installment_rates = get_installment_rates();
+
 return [
     'ngrok_url' => env('NGROK_URL'),
     /*
@@ -8,6 +10,14 @@ return [
     //'order_ttl' => 1800,//half an hour
     //'order_ttl' => 900,
     'order_ttl' => 180,//
+
+    /*
+    installment rates, fee, and fine
+    config file doesn't allow doing db query, so, we set the installment rates config in AppServceProvider
+    */ 
+    // 'installment_fee_rate' => $installment_rates['installment_fee_rate'],
+    // 'min_installment_amount' => $installment_rates['min_installment_amount'],
+    // 'installment_fine_rate' => $installment_rates['installment_fine_rate'],
 
     /*
     |--------------------------------------------------------------------------

@@ -50,11 +50,7 @@ Route::group(['middleware' => ['auth', 'verified']], function(){
     Route::delete('cart/{sku}', 'CartController@remove')->name('cart.remove');
     Route::post('orders', 'OrdersController@store')->name('orders.store');
     Route::get('orders', 'OrdersController@index')->name('orders.index');
-    try{
     Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
-    }catch(\Throwable $t){
-        dd($t);
-    }
     Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
     Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');//this can go through auth middle ware because browser stores our auth info
     Route::post('orders/{order}/received', 'OrdersController@received')->name('orders.received');
@@ -63,6 +59,7 @@ Route::group(['middleware' => ['auth', 'verified']], function(){
     Route::post('orders/{order}/apply_refund', 'OrdersController@applyRefund')->name('orders.apply_refund');
     Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
     Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
+    Route::post('payment/{order}/installment', 'PaymentController@payByInstallment')->name('payment.installment');
 });
 
 //This cannot go through auth middleware, because alipay sends this request to our back-end server instead of redirecting to a page, it doesn't contains any auth info 
