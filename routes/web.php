@@ -60,6 +60,7 @@ Route::group(['middleware' => ['auth', 'verified']], function(){
     Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
     Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
     Route::post('payment/{order}/installment', 'PaymentController@payByInstallment')->name('payment.installment');
+    Route::get('installments', 'InstallmentsController@index')->name('installments.index');
 });
 
 //This cannot go through auth middleware, because alipay sends this request to our back-end server instead of redirecting to a page, it doesn't contains any auth info 
