@@ -255,6 +255,7 @@
                      //alert();
                      console.log(response.data);
                      // todo redirect to installment payment page
+                     location.href = '/installments/' + response.data.id;
                  });
         });
     });

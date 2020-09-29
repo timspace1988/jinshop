@@ -14,4 +14,18 @@ class InstallmentsController extends Controller
                             
         return view('installments.index', ['installments' => $installments]);
     }
+
+    //show user's installment details page
+    public function show(Installment $installment){
+        $this->authorize('own', $installment);
+
+        //Get all installment items for current installment, and sort them by payment sequence
+        $items = $installment->items()->orderBy('sequence')->get();
+        return view('installments.show', [
+                                            'installment' => $installment, 
+                                            'items' => $items,
+                                            //next unpaid installment item
+                                            'nextItem' => $items->where('paid_at', null)->first(),//note: here ->where() is executed on $items collection, not on database
+                                        ]);
+    }
 }
