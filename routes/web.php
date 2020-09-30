@@ -62,10 +62,13 @@ Route::group(['middleware' => ['auth', 'verified']], function(){
     Route::post('payment/{order}/installment', 'PaymentController@payByInstallment')->name('payment.installment');
     Route::get('installments', 'InstallmentsController@index')->name('installments.index');
     Route::get('installments/{installment}', 'InstallmentsController@show')->name('installments.show');
+    Route::get('installments/{installment}/alipay', 'InstallmentsController@payByAlipay')->name('installments.alipay');
+    Route::get('installments/alipay/return', 'InstallmentsController@alipayReturn')->name('installments.alipay.return');
 });
 
-//This cannot go through auth middleware, because alipay sends this request to our back-end server instead of redirecting to a page, it doesn't contains any auth info 
+//This cannot go through auth middleware, because alipay sends this request to our back-end server instead of redirecting to a page(browser stores our auth info), it doesn't contains any auth info 
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
+Route::post('installments/alipay/notify', 'InstallmentsController@alipayNotify')->name('installments.alipay.notify');
 
 
 //Route::get('products/{product}', 'ProductsController@show')->name('products.show');

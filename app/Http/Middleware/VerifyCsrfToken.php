@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
-        'payment/alipay/notify',//we need alipay to send request to our back-end server via this url, so we exclude it
+        'payment/alipay/notify',//we need alipay to send request to our back-end server via this url, so we exclude it(because alipay doesnt have our csrf token, but we trust it)
+        'installments/alipay/notify',
     ];
 }

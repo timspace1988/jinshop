@@ -248,15 +248,31 @@
 
         //click on installment phases select button
         $('.btn-select-installment').click(function(){
-            //alert();
-            //call creating-installment interface
-            axios.post('{{ route("payment.installment", ["order" => $order->id]) }}', {count : $(this).data('count')})//second param in .post() is data to be send, retrieve it from controller using $request->input('xxx')
-                 .then(function(response){
-                     //alert();
-                     console.log(response.data);
-                     // todo redirect to installment payment page
-                     location.href = '/installments/' + response.data.id;
-                 });
+            //alert($(this).data('count'));
+            var phase_count = $(this).data('count');
+            swal({
+                title: "You are choosing a " + $(this).data('count') + " phases installment.",
+                text: "Click confirm to continue.",
+                icon: "info",
+                dangerous: true,
+                buttons: ['Cancel', 'Confirm'],
+            })
+            .then(function(ret){
+                //if click 'Cancel', then do nothing
+                if(!ret){
+                    //alert(phase_count);
+                    return;
+                }
+                //call creating-installment interface
+                axios.post('{{ route("payment.installment", ["order" => $order->id]) }}', {count : phase_count})//second param in .post() is data to be send, retrieve it from controller using $request->input('xxx')
+                    .then(function(response){
+                        //alert();
+                        console.log(response.data);
+                        // todo redirect to installment payment page
+                        location.href = '/installments/' + response.data.id;
+                    });
+            });
+            
         });
     });
 </script>
