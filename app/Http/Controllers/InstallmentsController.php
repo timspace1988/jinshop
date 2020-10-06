@@ -13,6 +13,7 @@ class InstallmentsController extends Controller
     //show installments for user
     public function index(Request $request){
         $installments = Installment::query()->where('user_id', $request->user()->id) 
+                                            ->orderBy('created_at', 'desc')
                                             ->paginate(10);
                             
         return view('installments.index', ['installments' => $installments]);

@@ -193,21 +193,22 @@
                         }),
                         //dataType: 'json',
                         contentType: 'application/json',
-                        // success: function(d){
-                        //     //alert(d.view_data);
-                        //     console.log(d);
+                        // success: function(data){
+                        //     alert(data.view_data);
+                        //     var d = eval(data);
+                        //     console.log(data);
                         //     //return;
-                        //     alert(d);
+                        //     alert(data);
                         // },
                     });
                 },
                 allowOutsideClick: false,
             }).then(function(ret){
-                //alert(ret.data);
                 //if user hit cancel button, do nothing()
                 if(ret.dismiss === 'cancel'){
                     return;
                 }
+                
                 swal({
                     title: 'Operation successful',
                     type: 'success',

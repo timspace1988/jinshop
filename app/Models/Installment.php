@@ -65,4 +65,26 @@ class Installment extends Model
         \Log::warning('Failed to find a unique installment no');
         return false;         
     }  
+
+    //(check and) refresh the order's refund status paid by installment(this is an encapsulation of checking status codes in RefundInstallmentOrder.php)
+    //(we need to check each installment item's refund status, only one item being failed will still result in order's refund status being failed)
+    public function refreshRefundStatus(){
+        $allSuccess = true;
+
+        $this->load(['items']);//before we execute the following codes, we re-load the items here to make sure the data is consistant with the database()
+
+        foreach($this->items as $item){
+            if($item->paid_at && $item->refund_status !== InstallmentItem::REFUND_STATUS_SUCCESS){
+                $allSuccess = false;
+                break;
+            }
+        }
+
+        if($allSuccess){
+            $this->order->update([
+                'refund_status' => Order::REFUND_STATUS_SUCCESS,
+            ]);
+        }
+
+    }
 }

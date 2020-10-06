@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\ProductSku;
 use App\Exceptions\InvalidRequestException;
 use App\Jobs\CloseOrder;
+use App\Jobs\RefundInstallmentOrder;
 use App\Models\CouponCode;
 
 class OrderService
@@ -188,15 +189,15 @@ class OrderService
                 $refundNo = $order->getAvailableRefundNo();
 
                 //call refund method of alily instance, $ret is the returned data
-                try{
+                // try{
                     $ret = app('alipay')->refund([
                         'out_trade_no' => $order->no,//order no
                         'refund_amount' => $order->total_amount,
                         'out_request_no' =>$refundNo,//refund no we just generated
                     ]);
-                }catch(\Throwable $t){
-                    return['code' => $t->getCode(), 'msg' => $t->getMessage()];
-                }
+                // }catch(\Throwable $t){
+                //     return['code' => $t->getCode(), 'msg' => $t->getMessage()];
+                // }
                 //$ret = 'alipay sandbox server collapsed, use this for just for test.';
 
 
@@ -221,6 +222,19 @@ class OrderService
                     ]);
                     return $ret;
                 }
+                break;
+            case 'installment':
+                $order->update([
+                    'refund_no' => Order::getAvailableRefundNo(),//generate refund no
+                    'refund_status' => Order::REFUND_STATUS_PROCESSING,//cheage order's refund status to processing
+                ]);
+
+                //dispatch the RefundInstallmentOrder job
+                //try{
+                dispatch(new RefundInstallmentOrder($order));
+                // }catch(\Throwable $t){
+                //     return $t;
+                // }
                 break;
             default:
                 //usually will not happened, doing this will make system rebust
