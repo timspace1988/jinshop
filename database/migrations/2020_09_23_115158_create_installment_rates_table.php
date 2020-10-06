@@ -14,6 +14,7 @@ class CreateInstallmentRatesTable extends Migration
     public function up()
     {
         Schema::create('installment_rates', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->text('installment_fee_rate');
             $table->decimal('min_installment_amount');
             $table->decimal('installment_fine_rate');
