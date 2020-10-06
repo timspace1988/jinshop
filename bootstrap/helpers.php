@@ -76,7 +76,7 @@ function big_number($number, $scale = 2){
 //get installment rates, fee and fine
 //we set the config in app service provider, check the boot function there
 function get_installment_rates(){
-    if($installment = App\Models\InstallmentRate::query()->first()){
+    if(\Schema::hasTable('installment_rates') && $installment = App\Models\InstallmentRate::query()->first()){
         return [
             'installment_fee_rate' => $installment->installment_fee_rate,
             'min_installment_amount' => $installment->min_installment_amount,
