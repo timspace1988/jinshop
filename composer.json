@@ -19,8 +19,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
         "league/flysystem-aws-s3-v3": "^1.0",
-        "moontoast/math": "^1.2",
-        "phpseclib/bcmath_compat": "1.0.4",
+        "moontoast/math": "1.1.2 as 1.999.999",
         "predis/predis": "~1.1",
         "yansongda/pay": "^2.9"
     },
