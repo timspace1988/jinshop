@@ -84,10 +84,10 @@ class AppServiceProvider extends ServiceProvider
         //it also supports using 'products.*' to execute the ViewComposer class on all templates under 'products' directory
         //if a varible needs to be passed to a lot of front-end templages and we don't want pass it through controllers(because we need to do modification on all these controllers), this method could be a good choice
     
-        // $installment_rates = get_installment_rates();
-        // //dd($installment_rates);
-        // config(['app.installment_fee_rate' => $installment_rates['installment_fee_rate']]);
-        // config(['app.min_installment_amount' => $installment_rates['min_installment_amount']]);
-        // config(['app.installment_fine_rate' => $installment_rates['installment_fine_rate']]);
+        $installment_rates = get_installment_rates();
+        //dd($installment_rates);
+        config(['app.installment_fee_rate' => $installment_rates['installment_fee_rate']]);
+        config(['app.min_installment_amount' => $installment_rates['min_installment_amount']]);
+        config(['app.installment_fine_rate' => $installment_rates['installment_fine_rate']]);
     }
 }
