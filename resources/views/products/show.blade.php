@@ -109,7 +109,21 @@
                     </ul>
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="product-detail-tab">
+                            <!-- start of product property -->
+                            <div class="properties-list">
+                                <div class="properties-list-title">Product property: </div>
+                                <ul class="properties-list-body">
+                                    @foreach($product->grouped_properties as $name => $values)
+                                    <li>{{ $name }}: {{ join(' / ', $values) }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            <!-- end of product property -->
+
+                            <!-- product description -->
+                            <div class="product-description">
                             {!! $product->description !!}
+                            </div>   
                         </div>
                         <!-- start of reviews panel -->
                         <div role="tabpanel" class="tab-pane" id="product-reviews-tab">

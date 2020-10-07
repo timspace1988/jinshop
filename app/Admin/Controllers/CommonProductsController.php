@@ -58,12 +58,20 @@ abstract class CommonProductsController extends AdminController
         //customize your form
         $this->customForm($form);
         
+        //subform of creating a sku
         $form->hasMany('skus', 'Product SKU', function(Form\NestedForm $form){
             $form->text('title', 'SKU name')->rules('required');
             $form->text('description', 'SKU description')->rules('required');
             $form->text('price', 'Price')->rules('required|numeric|min:0.01');
             $form->text('stock', 'Stock')->rules('required|integer|min:0');
         });
+
+        //subform of creating a product property
+        $form->hasMany('properties', 'Product property', function(Form\NestedForm $form){
+            $form->text('name', 'Property name')->rules('required');
+            $form->text('value', 'Property value')->rules('required');
+        });
+        
         $form->saving(function(Form $form){
             $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0; 
         });

@@ -38,6 +38,11 @@ class Product extends Model
         return $this->hasOne(CrowdfundingProduct::class);
     }
 
+    //relationship with ProductProperty
+    public function properties(){
+        return $this->hasMany(ProductProperty::class);
+    }
+
     //convert image attributes to its absolute path
     //this function will allows to call an attribute 'image_url' e.g. $this->image_url
     public function getImageUrlAttribute(){
@@ -47,4 +52,16 @@ class Product extends Model
         }
         return \Storage::disk(env('STORAGE', 'public'))->url($this->attributes['image']);
     } 
+
+    //group the properties with same property name, e.g. some product have versions with different color, so this product has two color attributes: color:blue, color:green 
+    public function getGroupedPropertiesAttribute(){
+        return $this->properties
+         //group the returned ProductProperty instaces by its name attribute, 
+         //and put them into a collection, key is the shared property name, value is a collection of all ProductProperty instances containing this shared name attribute        
+        ->groupBy('name')
+        ->map(function($properties){
+            //map method will transform the key-properties collection to key-values collection
+            return $properties->pluck('value')->all();
+        });
+    }
 }
