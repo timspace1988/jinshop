@@ -153,4 +153,9 @@ return [
 
     ],
 
+    'elasticsearch' => [
+        //Elasticsearch support multiple-servers load balancing, so the value for 'hosts' is an array
+        'hosts' => explode(',', env('ES_HOSTS')),  
+    ],
+
 ];

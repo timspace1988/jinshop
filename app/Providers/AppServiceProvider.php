@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Monolog\Logger;
 use Symfony\Component\ErrorHandler\Debug;
 use Yansongda\Pay\Pay;
+use Elasticsearch\ClientBuilder as ESClientBuilder;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -66,6 +67,21 @@ class AppServiceProvider extends ServiceProvider
 
             //call Yansongda\Pay to create a wechat_pay object
             return Pay::wechat($config);
+        });
+
+        //(register) inject a singleton named 'es' for elasticsearch
+        $this->app->singleton('es', function(){
+            //get Elasticsearch servers list from config/database file
+            $builder = ESClientBuilder::create()->setHosts(config('database.elasticsearch.hosts'));
+
+            //if we are in dev environment, we will output the  requested and returned data by Elasticsearch to laravel.log
+            //this will be convinient for us to do debug
+            if(app()->environment() === 'local') {
+                //set the log config for elasticsearch
+                $builder->setLogger(app('log')->driver());
+            }
+
+            return $builder->build();
         });
     }
 
