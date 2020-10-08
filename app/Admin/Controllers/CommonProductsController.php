@@ -45,6 +45,7 @@ abstract class CommonProductsController extends AdminController
 
         $form->hidden('type')->value($this->getProductType());
         $form->text('title', 'Product name')->rules('required');
+        $form->text('long_title', 'Product long title')->rules('required');
         $form->select('category_id', 'Category')->options(function($id){
             $category = Category::find($id);
             if($category){
@@ -71,7 +72,7 @@ abstract class CommonProductsController extends AdminController
             $form->text('name', 'Property name')->rules('required');
             $form->text('value', 'Property value')->rules('required');
         });
-        
+
         $form->saving(function(Form $form){
             $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0; 
         });
