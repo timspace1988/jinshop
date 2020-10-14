@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Jobs\SyncOneProductToES;
 use App\Models\Category;
 use App\Models\Product;
 use Encore\Admin\Controllers\AdminController;
@@ -73,9 +74,18 @@ abstract class CommonProductsController extends AdminController
             $form->text('value', 'Property value')->rules('required');
         });
 
+        //a saving event, when administrator submit the form, calcualte the price
         $form->saving(function(Form $form){
             $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0; 
         });
+
+        //a saved event, when the form is submited(a product is created or updated), synchronise the product data to Elasticsearch 
+        $form->saved(function(Form $form){
+            $product = $form->model();
+            //dispatch a SyncProductToES job
+            dispatch(new SyncOneProductToES($product));
+        });
+
 
         return $form;
     }
