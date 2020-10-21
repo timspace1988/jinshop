@@ -8,12 +8,143 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductsController extends Controller
 {
-    //products list
+    //Products list (get products list through Elasticsearch)
+    public function index(Request $request){
+        $page = $request->input('page', 1);//defaut page is 1 if user doesn't  specify a page number
+        $perPage = 16;//set the product number per page
+
+        //build up the search params
+        $params = [
+            'index' => 'products',
+            'body' => [
+                'from' => ($page - 1) * $perPage,//the offset of products number for current page. e.g. the second page's offset is (2-1) * 16 = 16
+                'size' => $perPage,
+                'query' => [
+                    'bool' => [
+                        'filter' => [
+                            ['term' => ['on_sale' => true]],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        //if user submit the 'search'
+        if($search = $request->input('search', '')){
+            //as search could contain multiple words, like Kingston ram, if we set query as 'Kingston ram', it will return us all results matching Kingston or ram, this is not as accurate as we want
+            //if we only want the results matching both Kingston and ram simultaneously, we need to set two multi_matches for query 'Kingston' and 'ram' 
+            //note: multi_match means it will check the query on multiple fields e.g. description, category, 
+            // now , we need to first split the search input, array_filter will filter out the empty value in array
+            $keywords = array_filter(explode(' ', $search));
+            //dd($keywords);
+
+            $params['body']['query']['bool']['must'] = [];
+
+            //iterate over the keywords and set the multi_match for each of them
+            foreach($keywords as $keyword){
+                $params['body']['query']['bool']['must'][] = [
+                    'multi_match' => [
+                        'query' => $keyword,
+                        'fields' => [
+                            'title^3',
+                            'long_title^2',
+                            'category^2',
+                            'description',
+                            'skus_title',
+                            'skus_description',
+                            'properties_value',
+                        ],
+                    ],
+                ];
+            }
+
+            
+            //dd($params['body']['query']['bool']['must']);
+            
+            // $params['body']['query']['bool']['must'] = [
+            //     [
+            //         'multi_match' => [
+            //             'query' => $search,
+            //             'fields' => [
+            //                 'title^3',
+            //                 'long_title^2',
+            //                 'category^2',
+            //                 'description',
+            //                 'skus_title',
+            //                 'skus_description',
+            //                 'properties_value',
+            //             ],
+            //         ],
+            //     ]
+            // ];
+        }
+
+        //if user specifies an category
+        if($request->input('category_id') && $category = Category::find($request->input('category_id'))){
+            //if the category is an directory, we will filter it on the p1: category_path(a strintg containing all ancestor ids) against p2: the specified category's full_category_path(ancestors and itself) 
+            //details of this filtering: to  check if p2 is a prefix of p1 (p1 starts with p2) e.g. category_id: 3,  p1: -1-2-3-4-5-6,  p2: -1-2-3-, in this case, p1 will meet the search condition
+            if($category->is_directory){
+                //for a directory category, well filter it on category_path
+                $params['body']['query']['bool']['filter'][] = [
+                    'prefix' => ['category_path' => $category->path . $category->id . '-'],
+                ];
+            }else{
+                //if this category is not a directory, we filter it on category_id
+                $params['body']['query']['bool']['filter'][] = ['term' => ['category_id' => $category->id]];
+            }
+        }
+
+        //if user specifies an sorting param, we need to set the sorting orer in $params
+        if($order = $request->input('order', '')){
+            //firstly check if the $order is ending with _asc or _desc (these are the only sorting orders we accept for all types of sorting:price, sold, rating)
+            //for preg_match(p1, p2, $m), e.g. p1='price_asc', p2='_asc', then we got $m[0] is 'price_asc', $m[1] is 'price', $m[2] is 'asc'
+            if(preg_match('/^(.+)_(asc|desc)$/', $order, $m)){
+                //then need to ensure the sorting param is one of the three legal sorting types in our app:price, sold_count, rating
+                //the sorting param should start with one of the follwoing three words
+                if(in_array($m[1], ['price', 'sold_count', 'rating'])){
+                    //set the sorting param in our $params
+                    $params['body']['sort'] = [[$m[1] => $m[2]]];
+                }
+            }
+        }
+
+        //get the products data fron Elasticsearch's 'products' index  using Elasticsearch
+        $result = app('es')->search($params);//this result is the documents retrived from the Elasticsearch, not the products from the database yet
+
+        //collect() will covert the array to a collection, pluck() will get values of a given key, here is '_d'
+        $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
+
+        //now we get the products from database using $productIds
+        $products = Product::query()->whereIn('id', $productIds)
+                                    //even though we got ids sorted in Elasticsearch, whereIn() will ignore this order,
+                                    //here we can use the sql to sort it against the order in $productIds, orderByRaw('sql') allows us to sort it using an original(raw) sql
+                                    ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $productIds)))
+                                    //sprintf("FIND_IN_SET(id, '%s)", join(',', [1, 2, 4, 3,])) will ouput a string: "FIND_IN_SET(id, '1,2,4,3')"
+                                   ->get();
+        //as we do the paginating in Elasticsearch, we cannot use Eloquent's paginate() method here anymore, as paginating returns a LengthAwarePaginator object, 
+        //we can create a LengthAwarePaginator object by ourselves so that the front end pages can still render it without any chaning
+        $pager = new LengthAwarePaginator($products, $result['hits']['total']['value'], $perPage, $page, [
+            //and this is  the base url for products list page
+            'path' => route('products.index', false),
+        ]);
+
+        //return the products list data for front end
+        return view('products.index', [
+            'products' => $pager,
+            'filters' => [
+                'search' => $search,
+                'order' => $order,
+            ],
+            'category' => $category ?? null,//if $category doesn't exist, null will be used
+        ]);
+    }
+    //products list (get products list without going through Elasticsearch)
     //public function index(Request $request, CategoryService $categoryService){
-    public function index(Request $request, CategoryService $categoryService){
+    public function index2(Request $request, CategoryService $categoryService){
         //create a $builder for all query on products for sale
         $builder = Product::query()->where('on_sale', true);
         
