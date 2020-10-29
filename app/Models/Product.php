@@ -96,9 +96,12 @@ class Product extends Model
         $arr['skus'] = $this->skus->map(function(ProductSku $sku){
             return Arr::only($sku->toArray(), ['title', 'description','price']);
         });
-        //do similar to above on product's properties
+        //do similar to above on product's properties, but add a 'search_value' field to each property array
         $arr['properties'] = $this->properties->map(function(ProductProperty $property){
-            return Arr::only($property->toArray(), ['name', 'value']);
+            //return Arr::only($property->toArray(), ['name', 'value']);
+            $propertyArray = Arr::only($property->toArray(), ['name', 'value']);//for each property array, we only put 'name' and 'value' fileds in it
+            //add 'search_value' to propertyArray, by using array_merge(array1, arrary2)
+            return array_merge($propertyArray, ['search_value' => $property->name . ':' . $property->value,]);
         });
 
         return $arr;

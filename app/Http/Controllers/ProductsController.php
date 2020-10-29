@@ -160,8 +160,11 @@ class ProductsController extends Controller
                         //specify which nested field we re going to filter
                         'path' => 'properties',
                         'query' => [
-                            ['term' => ['properties.name' => $name]],
-                            ['term' => ['properties.value' => $value]],
+                            //as we have add a 'search_value' field to each property in Elasticsearch, and the data of this 'search_value' is already in 'name:value' form, the same form as $filter here
+                            //so, we will directly search for $filter against the 'properties.search_value' instead of the searching for two terms: name and value
+                            ['term' => ['properties.search_value' => $filter]],
+                            // ['term' => ['properties.name' => $name]],
+                            // ['term' => ['properties.value' => $value]],
                         ],
                     ],
                 ];
