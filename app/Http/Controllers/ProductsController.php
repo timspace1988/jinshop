@@ -112,6 +112,62 @@ class ProductsController extends Controller
             }
         }
 
+        //when user has a search input or select a category, we will also do the aggregation search (retrieve the properties values, e.g. 16GB, 256GB)
+        //we will use these data to create some 'quick links' for user to do further filter on results later(check L06 7.2)
+        if($search || isset($category)){
+            $params['body']['aggs'] = [
+                'properties' => [
+                    'nested' => [
+                        'path' => 'properties',
+                    ],
+                    'aggs' => [
+                        'properties' => [
+                            'terms' => [
+                                'field' => 'properties.name',
+                            ],
+                            'aggs' => [
+                                'value' => [
+                                    'terms' => [
+                                        'field' => 'properties.value',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        //as we display the aggregation filters link on the page after doing a search, e.g. 16GB, 256GB
+        //if user clicks on the filter link
+
+        //the $propertyFilters contains properties user selected for furter filter
+        $propertyFilters = [];
+        if($filterString = $request->input('filters')){
+            //split each filter on '|' and put them into an array
+            $filterArray = explode('|', $filterString);
+            foreach($filterArray as $filter){
+                //split a filter on ':' and assign them to $name and $value using list(p1, p22, p3,...)
+                list($name, $value) = explode(':', $filter);
+
+                //put this property into  $propertyFilters
+                $propertyFilters[$name] = $value;
+
+                //add it to $params['body']['query']['bool']['filter'][] 
+                $params['body']['query']['bool']['filter'][] = [
+                    //the 'properties' is under 'nested', so we need to put it in a nested query
+                    'nested' => [
+                        //specify which nested field we re going to filter
+                        'path' => 'properties',
+                        'query' => [
+                            ['term' => ['properties.name' => $name]],
+                            ['term' => ['properties.value' => $value]],
+                        ],
+                    ],
+                ];
+            }
+        }
+
         //get the products data fron Elasticsearch's 'products' index  using Elasticsearch
         $result = app('es')->search($params);//this result is the documents retrived from the Elasticsearch, not the products from the database yet
 
@@ -132,6 +188,28 @@ class ProductsController extends Controller
             'path' => route('products.index', false),
         ]);
 
+        $properties = [];
+
+        //if the Elasticsearch results contains aggregations field, means we did the aggregation search
+        if(isset($result['aggregations'])){
+            //covert the data in $result to collection with collect(), and then retrieve the fields we want using map()
+            $properties = collect($result['aggregations']['properties']['properties']['buckets'])
+                        ->map(function($bucket){
+                                return [
+                                    'key' => $bucket['key'],
+                                    'values' => collect($bucket['value']['buckets'])->pluck('key')->all(),
+                                ];
+                            })
+                        //some properties in this aggregation result have no need to be displayed
+                        //case 1:  there is only one value for this property, e.g. 'size: 8GB'(not displayed),  'type: DDR3 DDR4'(displayed)
+                        //case 2:  after we clicked on a filter link on page e.g. '8GB' under 'size' property, we don't need to display 'size' on new page
+                        //so we need to filter those properties out based on above two cases
+                        ->filter(function($property) use($propertyFilters){//note: ->filter() will run over each item in the resutlt of ->map() 
+                            //only the properties meet both two conditons will be returned to the final result
+                            return count($property['values']) > 1 && !isset($propertyFilters[$property['key']]);
+                        });
+        }
+
         //return the products list data for front end
         return view('products.index', [
             'products' => $pager,
@@ -140,6 +218,8 @@ class ProductsController extends Controller
                 'order' => $order,
             ],
             'category' => $category ?? null,//if $category doesn't exist, null will be used
+            'properties' => $properties,
+            'propertyFilters' => $propertyFilters,
         ]);
     }
     //products list (get products list without going through Elasticsearch)
