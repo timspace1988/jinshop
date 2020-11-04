@@ -193,6 +193,7 @@
 
     //remove a property from the property filter query (bread crumb)
     function removeFilterFromQuery(name){
+        //alert(name);
         //parse for current url's query paramter
         var searches = parseSearch();
         //if there is no 'filters', then we do nothing
@@ -214,9 +215,12 @@
             filters.push(filter);
         });
 
+        
+
         //set search['filters'] with new filters array, 
         searches['filters'] = filters.join('|');
 
+        //alert(searches['filters']);
         //then rebuild the query and triiger the browser to redirect to new page
         location.search = buildSearch(searches);
     }

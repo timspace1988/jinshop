@@ -6,14 +6,118 @@ use App\Exceptions\InvalidRequestException;
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\SearchBuilders\ProductSearchBuilder;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductsController extends Controller
 {
-    //Products list (get products list through Elasticsearch)
+    //get products list through Elasticsearch (encapsulated codes, check each functions in ProductSearchBuilder class)
     public function index(Request $request){
+        $page = $request->input('page', 1);
+        $perPage = 16;
+
+        //create new search builder, and set it paginate and only searching for-sale product and 
+        $builder = (new ProductSearchBuilder())->onSale()->paginate($perPage, $page);
+        //the pagniate setting here is for Elasticsearch, the front end paginate links is set in $pager at bottom of this class
+
+        //if user input contains category_id
+        if($request->input('category_id') && $category = Category::find($request->input('category_id'))){
+            $builder->category($category);
+        }
+
+        //if user input contains keywords
+        if($search = $request->input('search', '')){
+            $keywords = array_filter(explode(' ', $search));
+
+            $builder->keywords($keywords);
+        }
+
+        //if users do a keywords or category search, then we create aggregation on product properties of result
+        if($search || isset($category)){
+            $builder->aggregateProperties();
+        }
+
+        $propertyFilters = [];
+        //if user click on property filters(the aggregation filters on product properties)
+        if($filterString = $request->input('filters')){
+            $filterArray = explode('|', $filterString);
+            foreach($filterArray as $filter){
+                list($name, $value) = explode(':', $filter);
+                $propertyFilters[$name] = $value;
+                $builder->propertyFilter($name, $value);
+            }
+        }
+
+        //if user sorts results with a paticular order
+        if($order = $request->input('order', '')){
+            if(preg_match('/^(.+)_(asc|desc)$/', $order, $m)){
+                if(in_array($m[1], ['price', 'sold_count', 'rating'])){
+                    $builder->orderBy($m[1], $m[2]);
+                }
+            }
+        }
+
+        //after we set up params of $builder, do Elasticsearch with the params
+        $result = app('es')->search($builder->getParams());  
+
+        //Following codes is to set up all we gonna pass to front end including pager, search, order, properties, propertyFilters and category
+
+        //collect() will covert the array to a collection, pluck() will get values of a given key, here is '_d'
+        $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
+
+        //now we get the products from database using $productIds
+        $products = Product::query()->whereIn('id', $productIds)
+                                    //even though we got ids sorted in Elasticsearch, whereIn() will ignore this order,
+                                    //here we can use the sql to sort it against the order in $productIds, orderByRaw('sql') allows us to sort it using an original(raw) sql
+                                    ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $productIds)))
+                                    //sprintf("FIND_IN_SET(id, '%s)", join(',', [1, 2, 4, 3,])) will ouput a string: "FIND_IN_SET(id, '1,2,4,3')"
+                                   ->get();
+        //as we do the paginating in Elasticsearch, we cannot use Eloquent's paginate() method here anymore, as paginating returns a LengthAwarePaginator object, 
+        //we can create a LengthAwarePaginator object by ourselves so that the front end pages can still render it without any chaning
+        $pager = new LengthAwarePaginator($products, $result['hits']['total']['value'], $perPage, $page, [
+            //and this is  the base url for products list page
+            'path' => route('products.index', false),
+        ]);
+
+        $properties = [];
+
+        //if the Elasticsearch results contains aggregations field, means we did the aggregation search
+        if(isset($result['aggregations'])){
+            //covert the data in $result to collection with collect(), and then retrieve the fields we want using map()
+            $properties = collect($result['aggregations']['properties']['properties']['buckets'])
+                        ->map(function($bucket){
+                                return [
+                                    'key' => $bucket['key'],
+                                    'values' => collect($bucket['value']['buckets'])->pluck('key')->all(),
+                                ];
+                            })
+                        //some properties in this aggregation result have no need to be displayed
+                        //case 1:  there is only one value for this property, e.g. 'size: 8GB'(not displayed),  'type: DDR3 DDR4'(displayed)
+                        //case 2:  after we clicked on a filter link on page e.g. '8GB' under 'size' property, we don't need to display 'size' on new page
+                        //so we need to filter those properties out based on above two cases
+                        ->filter(function($property) use($propertyFilters){//note: ->filter() will run over each item in the resutlt of ->map() 
+                            //only the properties meet both two conditons will be returned to the final result
+                            return count($property['values']) > 1 && !isset($propertyFilters[$property['key']]);
+                        });
+        }
+
+        //return the products list data for front end
+        return view('products.index', [
+            'products' => $pager,
+            'filters' => [
+                'search' => $search,
+                'order' => $order,
+            ],
+            'category' => $category ?? null,//if $category doesn't exist, null will be used
+            'properties' => $properties,
+            'propertyFilters' => $propertyFilters,
+        ]);
+    }
+
+    //get products list through Elasticsearch (uneccapsulated codes)
+    public function index3(Request $request){
         $page = $request->input('page', 1);//defaut page is 1 if user doesn't  specify a page number
         $perPage = 16;//set the product number per page
 
