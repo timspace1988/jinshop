@@ -98,8 +98,8 @@ class ProductSearchBuilder
     }
 
     //search against product property
-    public function propertyFilter($name, $value){
-        $this->params['body']['query']['bool']['filter'][] = [
+    public function propertyFilter($name, $value, $type = 'filter'){
+        $this->params['body']['query']['bool'][$type][] = [
             'nested' => [
                 'path' => 'properties',
                 'query' => [
@@ -108,6 +108,12 @@ class ProductSearchBuilder
             ],
         ];
 
+        return $this;
+    }
+
+    //set minimum_should_match attr, which can be used for recommending similar product
+    public function minShouldMatch($count){
+        $this->params['body']['query']['bool']['minimum_should_match'] = (int)$count;
         return $this;
     }
 

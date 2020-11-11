@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\SearchBuilders\ProductSearchBuilder;
 use App\Services\CategoryService;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -68,12 +69,17 @@ class ProductsController extends Controller
         $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
 
         //now we get the products from database using $productIds
+        //following code has been encapsulated in scopeByIds in Product class 
+        /*
         $products = Product::query()->whereIn('id', $productIds)
                                     //even though we got ids sorted in Elasticsearch, whereIn() will ignore this order,
                                     //here we can use the sql to sort it against the order in $productIds, orderByRaw('sql') allows us to sort it using an original(raw) sql
                                     ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $productIds)))
                                     //sprintf("FIND_IN_SET(id, '%s)", join(',', [1, 2, 4, 3,])) will ouput a string: "FIND_IN_SET(id, '1,2,4,3')"
                                    ->get();
+        */
+        $products = Product::query()->byIds($productIds)->get();
+
         //as we do the paginating in Elasticsearch, we cannot use Eloquent's paginate() method here anymore, as paginating returns a LengthAwarePaginator object, 
         //we can create a LengthAwarePaginator object by ourselves so that the front end pages can still render it without any chaning
         $pager = new LengthAwarePaginator($products, $result['hits']['total']['value'], $perPage, $page, [
@@ -395,7 +401,7 @@ class ProductsController extends Controller
     }
 
     //show product details
-    public function show (Product $product, Request $request){
+    public function show (Product $product, Request $request, ProductService $service){//auto inject to initialise an ProductService object
         //check if the selected product is for sale, if not, throw an exception
         if(!$product->on_sale){
             throw new InvalidRequestException('This product is not for sale.');
@@ -417,7 +423,55 @@ class ProductsController extends Controller
                                      ->limit(10)//get first 10 records
                                      ->get();
 
-        return view('products.show', ['product' => $product, 'favored' => $favored, 'reviews' => $reviews]);
+
+        //get recommended products(products with some properties in common with current product)
+
+        /**
+         * 
+         *Following codes has been encapsulated in App/Services/ProductService class,
+         */
+
+         /*
+
+        //create an elasticsearch builder, only search for for-sale product and choose top 4 of results
+        $builder = (new ProductSearchBuilder())->onSale()->paginate(4, 1);
+
+        //traverse on this product's properties
+        foreach($product->properties as $property){
+            //add each property to should conditions
+            $builder->propertyFilter($property->name, $property->value, 'should');
+        }
+
+        //set it at leat has half properties in common with current product for recommended products
+        $builder->minShouldMatch(ceil(count($product->properties) / 2));
+
+        //get the params for elasticsearch
+        $params = $builder->getParams();
+
+        $params['body']['query']['bool']['must_not'] = [['term' => ['_id' => $product->id]]];
+
+        //do elasticsearch query
+        $result = app('es')->search($params);
+
+        //get ids of the recommended product
+        $similarProductIds = collect($result['hits']['hits'])->pluck('_id')->all();
+
+        //get the products from database with the ids retrieved from elasticsearch
+        $similarProducts = Product::query()->whereIn('id', $similarProductIds)
+                                           ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $similarProductIds)))
+                                           ->get();
+
+        */
+        $similarProductIds = $service->getSimilarProductIds($product, 4);
+
+        //folowing codes has been encapsulated in socopByIds method in Product class
+        /*
+        $similarProducts = Product::query()->whereIn('id', $similarProductIds)
+                                           ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $similarProductIds)))
+                                           ->get();
+        */
+        $similarProducts = Product::query()->byIds($similarProductIds)->get();                                  
+        return view('products.show', ['product' => $product, 'favored' => $favored, 'reviews' => $reviews, 'similar' => $similarProducts,]);
     }
 
     //save product interface (will be sent request by ajax)
