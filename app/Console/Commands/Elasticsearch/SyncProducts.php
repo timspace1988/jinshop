@@ -8,11 +8,11 @@ use Illuminate\Console\Command;
 class SyncProducts extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The name and signature of the console command
      *
      * @var string
      */
-    protected $signature = 'es:sync-products';
+    protected $signature = 'es:sync-products {--index=products}'; //add a parameter 'index', default value is products, you can assign an value with --index=name
 
     /**
      * The console command description.
@@ -59,7 +59,7 @@ class SyncProducts extends Command
                                 
                                 $req['body'][] = [
                                     'index' => [
-                                        '_index' => 'products',
+                                        '_index' => $this->option('index'),//get the index name from parameter 'index'
                                         '_id' => $data['id'],
                                     ],
                                 ];
