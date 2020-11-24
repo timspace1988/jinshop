@@ -42,7 +42,7 @@ class Migrate extends Command
         $this->es = app('es');
 
         //create an empety index array
-        $indices = [Indices\ProjectIndex::class];
+        $indices = [Indices\ProjectIndex::class];//namespace, Migrate and ProjectIndex are all under 'App\Console\Commands\Elasticsearch', so here just use Indices\ProjectIndex
         
         //traverse on $indices
         foreach($indices as $indexClass){
