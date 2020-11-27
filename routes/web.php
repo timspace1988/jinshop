@@ -19,7 +19,15 @@ use Illuminate\Support\Facades\Route;
 
 //Route::get('/', 'PagesController@root')->name('root');
 Route::redirect('/', '/products')->name('root');
-Route::get('products', 'ProductsController@index')->name('products.index');
+try {
+    //code...
+    Route::get('products', 'ProductsController@index')->name('products.index');
+} catch (\Throwable $t) {
+    echo $t->getMessage();
+    dd($t);
+}
+//Route::get('products', 'ProductsController@index')->name('products.index');
+
 //Route::get('products/{product}', 'ProductsController@show')->name('products.show');
 /*
 we move above route to the bottom, because products.favorites route has conflict with this
