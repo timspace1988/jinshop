@@ -16,6 +16,8 @@ class ProductsController extends Controller
 {
     //get products list through Elasticsearch (encapsulated codes, check each functions in ProductSearchBuilder class)
     public function index(Request $request){
+        try{
+
         $page = $request->input('page', 1);
         $perPage = 16;
 
@@ -120,6 +122,12 @@ class ProductsController extends Controller
             'properties' => $properties,
             'propertyFilters' => $propertyFilters,
         ]);
+
+        /////////////////////////////////
+        }catch(\Throwable $t){
+            echo $t->getMessage();
+            dd($t);
+        }
     }
 
     //get products list through Elasticsearch (uneccapsulated codes)
