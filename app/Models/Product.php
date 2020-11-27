@@ -110,7 +110,13 @@ class Product extends Model
     //sort the products based on order of a set of given ids (when we search for proeducts using elasticsearch, we may use this to sort the products based on ids from elasticsearch result)
     //scopeXxxYyy will allows us to create a method for 'linked execution', scopeByIds($query, $param) will be used in format: Product::query()->byIds($param)
     public function scopeByIds($query, $ids){
-        return $query->whereIn('id', $ids)->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $ids)));
+        if(getenv('IS_IN_HEROKU')){
+            //in postgres, ANY(string_to_array()) is equivalent to FIND_IN_SET() in mysql
+            return $query->whereIn('id', $ids)->orderByRaw(sprintf("id = ANY(string_to_array('%s', ','))", join(',', $ids)));
+        }else{
+            return $query->whereIn('id', $ids)->orderByRaw(sprintf(     "FIND_IN_SET(id, '%s')", join(',', $ids)     ));
+        }
+        
     }
 
 }
