@@ -113,6 +113,8 @@ class Product extends Model
         if(getenv('IS_IN_HEROKU')){
             //in postgres, ANY(string_to_array()) is equivalent to FIND_IN_SET() in mysql
             //return $query->whereIn('id', $ids)->orderByRaw(sprintf("'id' = ANY(string_to_array('%s', ','))", join(',', $ids)));
+            dd($ids);
+
             return $query->whereIn('id', $ids)->orderByRaw(sprintf("array_position(string_to_array('%s', ','), 'products.id')", join(',', $ids)));
         }else{
             return $query->whereIn('id', $ids)->orderByRaw(sprintf(     "FIND_IN_SET(id, '%s')", join(',', $ids)     ));
