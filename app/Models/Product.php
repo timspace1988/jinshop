@@ -112,11 +112,11 @@ class Product extends Model
     public function scopeByIds($query, $ids){
         if(getenv('IS_IN_HEROKU')){
             //in postgres, ANY(string_to_array()) is equivalent to FIND_IN_SET() in mysql
-            //return $query->whereIn('id', $ids)->orderByRaw(sprintf("'id' = ANY(string_to_array('%s', ','))", join(',', $ids)));
+            return $query->whereIn('id', $ids)->orderByRaw(sprintf("id::text = ANY(string_to_array('%s', ','))", join(',', $ids)));
             //dd($ids);
 
-            return $query->whereIn('id', $ids)->orderByRaw(sprintf("array_position(string_to_array('%s', ','), id::text)", join(',', $ids)));
-            //return $query->whereIn('id', $ids)->orderByRaw(sprintf("custom_sort(string_to_array('%s', ','), id)", join(',', $ids)));
+            //return $query->whereIn('id', $ids)->orderByRaw(sprintf("array_position(string_to_array('%s', ','), id::text)", join(',', $ids)));
+           
         }else{
             return $query->whereIn('id', $ids)->orderByRaw(sprintf(     "FIND_IN_SET(id, '%s')", join(',', $ids)     ));
         }
