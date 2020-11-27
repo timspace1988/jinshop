@@ -116,7 +116,7 @@ class Product extends Model
             //dd($ids);
 
             //return $query->whereIn('id', $ids)->orderByRaw(sprintf("array_position(string_to_array('%s', ','), 'products.id')", join(',', $ids)));
-            return $query->whereIn('id', $ids)->orderByRaw(sprintf("custom_sort(string_to_array('%s', ','), 'id')", join(',', $ids)));
+            return $query->whereIn('id', $ids)->orderByRaw(sprintf("custom_sort(string_to_array('%s', ','), id)", join(',', $ids)));
         }else{
             return $query->whereIn('id', $ids)->orderByRaw(sprintf(     "FIND_IN_SET(id, '%s')", join(',', $ids)     ));
         }
